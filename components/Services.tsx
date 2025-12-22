@@ -1,10 +1,10 @@
 import React from 'react';
-import { motion } from 'framer-motion';
 import { Film, MonitorPlay, Zap, Layers } from 'lucide-react';
 import Reveal from './Reveal';
 import { useContent } from '../context/ContentContext';
+import clsx from 'clsx';
+import Skeleton from 'react-loading-skeleton';
 
-// Map icons to IDs since we can't store React components in JSON
 const iconMap: Record<number, React.ElementType> = {
   1: Film,
   2: Layers,
@@ -13,7 +13,7 @@ const iconMap: Record<number, React.ElementType> = {
 };
 
 const Services: React.FC = () => {
-  const { content } = useContent();
+  const { content, isLoading } = useContent();
 
   return (
     <section id="services" className="py-24 bg-surfaceHighlight/30">
@@ -26,11 +26,23 @@ const Services: React.FC = () => {
         </Reveal>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {content.services.map((service, index) => {
+          {isLoading 
+            ? Array.from({ length: 4 }).map((_, i) => (
+                <div key={i} className="p-8 h-[320px] bg-surface border border-white/5 rounded-xl">
+                  <Skeleton height={48} width={48} className="mb-6 rounded-lg" />
+                  <Skeleton height={24} width="70%" className="mb-4" />
+                  <Skeleton count={3} />
+                </div>
+              ))
+            : content.services.map((service, index) => {
             const Icon = iconMap[service.id] || Film;
             return (
               <Reveal key={service.id} delay={index * 0.1} width="100%">
-                <div className="group p-8 min-h-[320px] bg-surface border border-white/5 rounded-xl hover:border-accent/50 transition-colors duration-300 relative overflow-hidden cursor-hover-trigger flex flex-col">
+                <div className={clsx(
+                  "group p-8 min-h-[320px] bg-surface border border-white/5 rounded-xl",
+                  "hover:border-accent/50 transition-colors duration-300 relative overflow-hidden",
+                  "cursor-hover-trigger flex flex-col"
+                )}>
                   {/* Hover Gradient */}
                   <div className="absolute inset-0 bg-gradient-to-br from-accent/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
                   

@@ -3,9 +3,11 @@ import { motion } from 'framer-motion';
 import Reveal from './Reveal';
 import { Send, Mail, CheckCircle, Instagram, Facebook, Twitter, Linkedin } from 'lucide-react';
 import { useContent } from '../context/ContentContext';
+import clsx from 'clsx';
+import Skeleton from 'react-loading-skeleton';
 
 const Contact: React.FC = () => {
-  const { content } = useContent();
+  const { content, isLoading } = useContent();
   const { contact, socials } = content;
   
   const [formState, setFormState] = useState({
@@ -83,24 +85,24 @@ const Contact: React.FC = () => {
             <Reveal>
               <h2 className="text-sm text-accent uppercase tracking-[0.2em] mb-4">Get In Touch</h2>
               <h3 className="text-4xl md:text-6xl font-display font-bold text-white mb-6">
-                 {contact.heading}
+                 {isLoading ? <Skeleton /> : contact.heading}
               </h3>
             </Reveal>
             <Reveal delay={0.2}>
               <p className="text-neutral-400 text-lg mb-10 max-w-md">
-                {contact.subheading}
+                {isLoading ? <Skeleton count={2} /> : contact.subheading}
               </p>
             </Reveal>
             
             <Reveal delay={0.3}>
               <a 
-                href={`mailto:${contact.email}`} 
+                href={isLoading ? '#' : `mailto:${contact.email}`} 
                 className="flex items-center gap-4 text-white hover:text-accent transition-colors mb-4 group w-fit"
               >
                 <div className="w-12 h-12 rounded-full bg-surface border border-white/10 flex items-center justify-center group-hover:border-accent transition-colors">
                     <Mail size={20} />
                 </div>
-                <span className="text-lg">{contact.email}</span>
+                <span className="text-lg">{isLoading ? <Skeleton width={200} /> : contact.email}</span>
               </a>
             </Reveal>
           </div>
@@ -213,7 +215,10 @@ const Contact: React.FC = () => {
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className="w-full py-4 bg-white text-black font-bold rounded-lg hover:bg-accent hover:text-white transition-all duration-300 flex items-center justify-center gap-2 group disabled:opacity-50 disabled:cursor-not-allowed"
+                className={clsx(
+                  "w-full py-4 bg-white text-black font-bold rounded-lg hover:bg-accent hover:text-white transition-all duration-300 flex items-center justify-center gap-2 group",
+                  isSubmitting && "opacity-50 cursor-not-allowed"
+                )}
               >
                 {isSubmitting ? 'Sending...' : 'Send Request'}
                 {!isSubmitting && <Send size={18} className="group-hover:translate-x-1 transition-transform" />}
@@ -233,7 +238,10 @@ const Contact: React.FC = () => {
                   href={social.href}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="group flex items-center justify-center w-16 h-16 rounded-full border border-white/10 bg-surface hover:bg-accent hover:border-accent transition-all duration-300 relative cursor-hover-trigger"
+                  className={clsx(
+                    "group flex items-center justify-center w-16 h-16 rounded-full border border-white/10 bg-surface",
+                    "hover:bg-accent hover:border-accent transition-all duration-300 relative cursor-hover-trigger"
+                  )}
                   aria-label={social.label}
                 >
                   <social.icon 

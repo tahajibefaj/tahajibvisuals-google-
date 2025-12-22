@@ -3,6 +3,7 @@ import { createPortal } from 'react-dom';
 import { motion } from 'framer-motion';
 import { X, Play } from 'lucide-react';
 import { Project } from '../types';
+import clsx from 'clsx';
 
 interface ProjectModalProps {
   project: Project;
@@ -36,11 +37,18 @@ const ProjectModal: React.FC<ProjectModalProps> = ({ project, isOpen, onClose })
     const targetUrl = url || defaultUrl;
     // Strip existing params to ensure clean slate and correct configuration
     const baseUrl = targetUrl.split('?')[0];
-    return `${baseUrl}?autoplay=1&rel=0&modestbranding=1&playsinline=1&controls=1&showinfo=0`;
+    // Added modestbranding, rel=0, controls=1, playsinline=1, fs=1
+    return `${baseUrl}?autoplay=1&rel=0&modestbranding=1&playsinline=1&controls=1&showinfo=0&fs=1`;
   };
 
+  // Heuristic for vertical video based on category or keywords
+  const isVertical = project.category.toLowerCase().includes('social') || 
+                     project.category.toLowerCase().includes('short') || 
+                     project.category.toLowerCase().includes('reel') ||
+                     project.category.toLowerCase().includes('tiktok');
+
   return createPortal(
-    <div className="fixed inset-0 z-[100] flex items-center justify-center px-4 md:px-0">
+    <div className="fixed inset-0 z-[100] flex items-center justify-center px-4 md:px-0 overflow-hidden">
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
@@ -54,7 +62,8 @@ const ProjectModal: React.FC<ProjectModalProps> = ({ project, isOpen, onClose })
         animate={{ y: 0, opacity: 1 }}
         exit={{ y: 100, opacity: 0 }}
         transition={{ type: "spring", damping: 25, stiffness: 200 }}
-        className="relative bg-surface w-full max-w-7xl max-h-[90vh] overflow-hidden rounded-xl border border-white/10 shadow-2xl flex flex-col"
+        // MODAL CONTAINER: overflow-hidden, fixed max-height, flex layout
+        className="relative bg-surface w-full max-w-7xl h-[85vh] md:h-[90vh] overflow-hidden rounded-xl border border-white/10 shadow-2xl flex flex-col lg:flex-row"
         onClick={(e) => e.stopPropagation()} 
       >
         <button
@@ -65,17 +74,32 @@ const ProjectModal: React.FC<ProjectModalProps> = ({ project, isOpen, onClose })
         </button>
 
         {/* 
-           Layout Strategy:
-           Desktop: Block layout with Media taking up relative flow to define height.
-                    Text column is absolute to fill the remaining height exactly.
-           Mobile: Flex column. Media flows naturally. Text fills remaining space.
+           LEFT COLUMN: Media
+           - Flex container to center content
+           - Overflow hidden to prevent video from spilling
+           - Fixed height on mobile to ensure split view, full height on desktop
         */}
-        <div className="flex flex-col lg:block relative w-full h-full min-h-0 overflow-hidden bg-black">
-          
-          {/* Media Section - Drives Height on Desktop */}
-          <div className="w-full lg:w-2/3 bg-black relative shrink-0">
-             {/* Strict 16:9 Aspect Ratio Container */}
-             <div className="w-full aspect-video relative bg-black">
+        <div className="w-full lg:flex-1 bg-black relative flex items-center justify-center overflow-hidden h-[40vh] lg:h-full shrink-0">
+             
+             {/* VIDEO WRAPPER 
+                 - Uses aspect-ratio to shape the box
+                 - Uses max-width/max-height to contain within parent
+                 - Auto margins to center if flex didn't (but flex does)
+             */}
+             <div className={clsx(
+               "relative shadow-2xl bg-black",
+               isVertical ? "aspect-[9/16]" : "aspect-video"
+             )}
+             style={{
+               width: 'auto',
+               height: 'auto',
+               maxWidth: '100%',
+               maxHeight: '100%',
+               // Ensure it takes up space if constraints allow
+               minWidth: isVertical ? 'auto' : '50%', 
+               minHeight: isVertical ? '50%' : 'auto'
+             }}
+             >
                {!isPlaying ? (
                  <>
                    <img 
@@ -96,36 +120,41 @@ const ProjectModal: React.FC<ProjectModalProps> = ({ project, isOpen, onClose })
                   <iframe 
                     src={getEmbedUrl(project.videoUrl)} 
                     title={project.title}
-                    className="absolute inset-0 w-full h-full"
-                    allow="autoplay; encrypted-media; picture-in-picture" 
+                    className="absolute inset-0 w-full h-full block border-none overflow-hidden"
+                    allow="autoplay; encrypted-media; picture-in-picture; fullscreen" 
                     allowFullScreen
                   ></iframe>
                )}
              </div>
-          </div>
-
-          {/* Details Section - Adapts to Height */}
-          <div className="w-full lg:w-1/3 bg-surface flex flex-col p-8 lg:p-10 overflow-y-auto custom-scrollbar flex-1 lg:absolute lg:inset-y-0 lg:right-0 lg:h-full lg:border-l lg:border-white/5">
-            <span className="text-accent text-sm tracking-widest uppercase mb-2">{project.category}</span>
-            <h3 className="text-3xl font-display font-bold text-white mb-6 leading-tight">{project.title}</h3>
-            
-            <div className="flex flex-wrap gap-2 mb-8">
-              {project.tools.map((tool) => (
-                <span key={tool} className="px-3 py-1 bg-white/5 border border-white/10 rounded-full text-xs text-neutral-300">
-                  {tool}
-                </span>
-              ))}
-            </div>
-
-            <div className="space-y-6 text-neutral-400 leading-relaxed mb-auto">
-              <p>{project.description}</p>
-              <p>
-                This project focuses on visual retention, using fast-paced editing techniques combined with smooth motion graphics to keep viewer engagement high throughout the entire duration.
-              </p>
-            </div>
-          </div>
-          
         </div>
+
+        {/* 
+           RIGHT COLUMN: Text Content
+           - Overflow-y-auto to allow scrolling text
+           - Fixed width on desktop
+        */}
+        <div className="w-full lg:w-[400px] xl:w-[450px] bg-surface flex flex-col overflow-y-auto custom-scrollbar flex-shrink-0 lg:border-l lg:border-white/5 relative z-10">
+            <div className="p-8 lg:p-10 mt-0 lg:mt-12">
+                <span className="text-accent text-sm tracking-widest uppercase mb-2 block">{project.category}</span>
+                <h3 className="text-3xl font-display font-bold text-white mb-6 leading-tight">{project.title}</h3>
+                
+                <div className="flex flex-wrap gap-2 mb-8">
+                {project.tools.map((tool) => (
+                    <span key={tool} className="px-3 py-1 bg-white/5 border border-white/10 rounded-full text-xs text-neutral-300">
+                    {tool}
+                    </span>
+                ))}
+                </div>
+
+                <div className="space-y-6 text-neutral-400 leading-relaxed">
+                <p>{project.description}</p>
+                <p>
+                    This project focuses on visual retention, using fast-paced editing techniques combined with smooth motion graphics to keep viewer engagement high throughout the entire duration.
+                </p>
+                </div>
+            </div>
+        </div>
+          
       </motion.div>
     </div>,
     document.body

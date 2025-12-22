@@ -1,5 +1,6 @@
-import React, { useRef, useEffect } from 'react';
-import { motion, useInView, useAnimation } from 'framer-motion';
+import React, { useEffect } from 'react';
+import { motion, useAnimation } from 'framer-motion';
+import { useInView } from 'react-intersection-observer';
 
 interface RevealProps {
   children: React.ReactNode;
@@ -8,15 +9,18 @@ interface RevealProps {
 }
 
 export const Reveal: React.FC<RevealProps> = ({ children, width = "fit-content", delay = 0.25 }) => {
-  const ref = useRef(null);
-  const isInView = useInView(ref, { once: true, margin: "-50px" });
   const mainControls = useAnimation();
+  const { ref, inView } = useInView({
+    triggerOnce: true,
+    threshold: 0.1,
+    rootMargin: "-50px 0px" // Trigger slightly before it enters or as it enters
+  });
 
   useEffect(() => {
-    if (isInView) {
+    if (inView) {
       mainControls.start("visible");
     }
-  }, [isInView, mainControls]);
+  }, [inView, mainControls]);
 
   return (
     <div ref={ref} style={{ position: "relative", width, overflow: "hidden" }}>

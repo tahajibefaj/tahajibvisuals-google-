@@ -5,6 +5,8 @@ import ProjectModal from './ProjectModal';
 import { Project } from '../types';
 import { ArrowUpRight } from 'lucide-react';
 import { useContent } from '../context/ContentContext';
+import Skeleton from 'react-loading-skeleton';
+import clsx from 'clsx';
 
 const Projects: React.FC = () => {
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
@@ -15,12 +17,14 @@ const Projects: React.FC = () => {
       <div className="container mx-auto px-6">
         <div className="flex flex-col md:flex-row justify-between items-end mb-16">
           <Reveal>
-            <h2 className="text-4xl md:text-5xl font-display font-bold text-white">{content.projects.heading}</h2>
+            <h2 className="text-4xl md:text-5xl font-display font-bold text-white">
+              {isLoading ? <Skeleton width={300} /> : content.projects.heading}
+            </h2>
           </Reveal>
           <Reveal delay={0.2}>
-            <p className="text-neutral-400 mt-4 md:mt-0 max-w-sm text-right">
-              {content.projects.subheading}
-            </p>
+            <div className="text-neutral-400 mt-4 md:mt-0 max-w-sm text-right">
+              {isLoading ? <Skeleton count={2} /> : content.projects.subheading}
+            </div>
           </Reveal>
         </div>
 
@@ -28,14 +32,18 @@ const Projects: React.FC = () => {
           {isLoading ? (
             Array.from({ length: 4 }).map((_, index) => (
               <div key={`skeleton-${index}`} className="w-full">
-                <div className="aspect-video w-full bg-white/5 rounded-lg animate-pulse border border-white/5" />
+                <Skeleton className="aspect-video w-full rounded-lg" height="100%" />
               </div>
             ))
           ) : (
             content.projects.items.map((project, index) => (
               <Reveal key={project.id} width="100%" delay={index * 0.1}>
                 <motion.div
-                  className="group relative aspect-video overflow-hidden rounded-lg cursor-pointer cursor-hover-trigger border border-white/10 hover:border-accent/50 hover:shadow-[0_0_30px_rgba(16,185,129,0.15)] transition-all duration-500"
+                  className={clsx(
+                    "group relative aspect-video overflow-hidden rounded-lg cursor-pointer cursor-hover-trigger",
+                    "border border-white/10 hover:border-accent/50",
+                    "hover:shadow-[0_0_30px_rgba(16,185,129,0.15)] transition-all duration-500"
+                  )}
                   onClick={() => setSelectedProject(project)}
                   whileHover={{ y: -5 }}
                   transition={{ type: "spring", stiffness: 300 }}

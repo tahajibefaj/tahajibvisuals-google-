@@ -34,56 +34,60 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@200;300;400;500;600;700&family=Syncopate:wght@400;700&family=Orbitron:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     
+    <!-- React Loading Skeleton CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/react-loading-skeleton/3.4.0/skeleton.min.css" />
+
     <style>
       html, body, #root {
-        height: 100%;
         width: 100%;
+        height: 100%;
         margin: 0;
         padding: 0;
       }
 
       body {
         cursor: none !important; /* Hide default cursor for custom one */
-        overflow: hidden; /* Important for smooth-scrollbar */
         background-color: #000;
+        overflow: hidden; /* Important for smooth-scrollbar */
       }
 
       a, button, [role="button"], input, select, textarea {
         cursor: none !important;
       }
+      
+      .text-glow {
+        text-shadow: 0 0 20px rgba(16, 185, 129, 0.3);
+      }
 
       /* Smooth Scrollbar Customization */
       .scrollbar-track {
         background: transparent !important;
-        z-index: 9999 !important;
       }
-      
       .scrollbar-thumb {
-        background: #333 !important;
-        border-radius: 4px !important;
-        width: 6px !important;
+        background: #10b981 !important; /* accent color */
+        border-radius: 20px !important;
+        opacity: 0.5;
       }
-      
       .scrollbar-thumb:hover {
-        background: #10b981 !important;
-      }
-      
-      .text-glow {
-        text-shadow: 0 0 20px rgba(16, 185, 129, 0.3);
+        background: #059669 !important; /* accentHover */
+        opacity: 1;
       }
     </style>
   <script type="importmap">
 {
   "imports": {
-    "react/": "https://esm.sh/react@^19.2.3/",
-    "react": "https://esm.sh/react@^19.2.3",
-    "lucide-react": "https://esm.sh/lucide-react@^0.562.0",
-    "framer-motion": "https://esm.sh/framer-motion@^12.23.26",
-    "react-dom/client": "https://esm.sh/react-dom@^19.2.3/client",
-    "react-dom/": "https://esm.sh/react-dom@^19.2.3/",
-    "react-dom": "https://esm.sh/react-dom@^19.2.3",
+    "react": "https://esm.sh/react@18.3.1",
+    "react/": "https://esm.sh/react@18.3.1/",
+    "react-dom": "https://esm.sh/react-dom@18.3.1",
+    "react-dom/": "https://esm.sh/react-dom@18.3.1/",
+    "react-dom/client": "https://esm.sh/react-dom@18.3.1/client",
+    "lucide-react": "https://esm.sh/lucide-react@0.292.0?deps=react@18.3.1",
+    "framer-motion": "https://esm.sh/framer-motion@10.16.5?deps=react@18.3.1,react-dom@18.3.1",
     "smooth-scrollbar": "https://esm.sh/smooth-scrollbar@8.8.4",
-    "@supabase/supabase-js": "https://esm.sh/@supabase/supabase-js@2.39.3"
+    "@supabase/supabase-js": "https://esm.sh/@supabase/supabase-js@2.39.3",
+    "clsx": "https://esm.sh/clsx@2.1.0",
+    "react-intersection-observer": "https://esm.sh/react-intersection-observer@9.5.3?deps=react@18.3.1",
+    "react-loading-skeleton": "https://esm.sh/react-loading-skeleton@3.4.0?deps=react@18.3.1"
   }
 }
 </script>

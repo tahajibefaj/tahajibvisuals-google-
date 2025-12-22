@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { Menu, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import Scrollbar from 'smooth-scrollbar';
 import { useContent } from '../context/ContentContext';
+import clsx from 'clsx';
 
 const navItems = [
   { label: 'Work', href: '#work' },
@@ -19,34 +19,39 @@ const Navbar: React.FC<NavbarProps> = ({ isScrolled }) => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const { content } = useContent();
 
-  // Helper to handle scrolling with smooth-scrollbar
   const handleNavClick = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
     e.preventDefault();
     const targetId = href.replace('#', '');
     const element = document.getElementById(targetId);
-    const container = document.getElementById('scroll-container');
+    
+    // Check for custom scrollbar instance
+    const scrollbar = (window as any).scrollbar;
 
-    if (element && container) {
-      const scrollbar = Scrollbar.get(container);
+    if (element) {
       if (scrollbar) {
+        // Use smooth-scrollbar to scroll
         scrollbar.scrollIntoView(element, {
-          offsetTop: 100, // Offset for sticky navbar
+          offsetTop: 0,
           offsetLeft: 0,
+          alignToTop: true,
         });
+      } else {
+        // Fallback to native smooth scroll
+        element.scrollIntoView({ behavior: 'smooth' });
       }
     }
     setMobileMenuOpen(false);
   };
 
   return (
-    <nav className="fixed top-0 left-0 w-full z-50 flex justify-center py-4">
+    <nav className="fixed top-0 left-0 w-full z-50 flex justify-center py-4 pointer-events-none">
       <div 
-        className="
-          flex items-center justify-between 
-          bg-neutral-900/80 backdrop-blur-xl border border-white/10 
-          rounded-full px-6 py-3 shadow-2xl shadow-black/50
-          w-[92%] md:w-auto gap-4 md:min-w-[600px]
-        "
+        className={clsx(
+          "pointer-events-auto flex items-center justify-between",
+          "bg-neutral-900/80 backdrop-blur-xl border border-white/10",
+          "rounded-full px-6 py-3 shadow-2xl shadow-black/50",
+          "w-[92%] md:w-auto gap-4 md:min-w-[600px]"
+        )}
       >
         {/* Logo */}
         <a 
@@ -106,7 +111,7 @@ const Navbar: React.FC<NavbarProps> = ({ isScrolled }) => {
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
-            className="fixed inset-0 bg-black z-40 flex flex-col items-center justify-center gap-8 md:hidden"
+            className="fixed inset-0 bg-black z-40 flex flex-col items-center justify-center gap-8 md:hidden pointer-events-auto"
           >
             {navItems.map((item) => (
               <a

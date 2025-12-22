@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import Navbar from './components/Navbar';
 import Hero from './components/Hero';
 import Projects from './components/Projects';
@@ -9,55 +9,62 @@ import FAQ from './components/FAQ';
 import Footer from './components/Footer';
 import CustomCursor from './components/CustomCursor';
 import { ContentProvider } from './context/ContentContext';
+import { SkeletonTheme } from 'react-loading-skeleton';
 import Scrollbar from 'smooth-scrollbar';
 
 function App() {
-  const scrollContainerRef = useRef<HTMLDivElement>(null);
   const [isScrolled, setIsScrolled] = useState(false);
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
+    let scrollbar: any;
+
     if (scrollContainerRef.current) {
-      const scrollbar = Scrollbar.init(scrollContainerRef.current, {
-        damping: 0.07,
-        thumbMinSize: 20,
+      // Initialize smooth-scrollbar
+      scrollbar = Scrollbar.init(scrollContainerRef.current, {
+        damping: 0.07, // Adjust momentum: lower is smoother/heavier
         renderByPixels: true,
-        alwaysShowTracks: false,
-        delegateTo: document,
+        // Removed delegateTo: document to ensure modals can capture their own scroll events
       });
 
-      scrollbar.addListener(({ offset }) => {
+      // Sync Navbar state based on scroll offset
+      scrollbar.addListener(({ offset }: { offset: { y: number } }) => {
         setIsScrolled(offset.y > 50);
       });
 
-      return () => {
-        if (scrollbar) scrollbar.destroy();
-      };
+      // Expose scrollbar instance globally for navigation logic
+      (window as any).scrollbar = scrollbar;
     }
+
+    return () => {
+      if (scrollbar) {
+        scrollbar.destroy();
+        (window as any).scrollbar = undefined;
+      }
+    };
   }, []);
 
   return (
     <ContentProvider>
-      <div className="bg-background min-h-screen text-white selection:bg-accent selection:text-black">
-        <CustomCursor />
-        <Navbar isScrolled={isScrolled} />
-        
-        {/* Scroll Wrapper */}
-        <div 
-          ref={scrollContainerRef} 
-          id="scroll-container" 
-          style={{ height: '100vh', width: '100%', overflow: 'hidden' }}
-        >
-          <div className="scroll-content">
-            <Hero />
-            <Projects />
-            <About />
-            <Services />
-            <Contact />
-            <FAQ />
-            <Footer />
+      <SkeletonTheme baseColor="#202020" highlightColor="#444">
+        <div className="bg-background h-screen w-full flex flex-col text-white selection:bg-accent selection:text-black">
+          <CustomCursor />
+          <Navbar isScrolled={isScrolled} />
+          
+          {/* Scroll Container */}
+          <div ref={scrollContainerRef} className="flex-1 w-full h-full overflow-hidden">
+             <main className="w-full">
+              <Hero />
+              <Projects />
+              <About />
+              <Services />
+              <Contact />
+              <FAQ />
+              <Footer />
+            </main>
           </div>
         </div>
-      </div>
+      </SkeletonTheme>
     </ContentProvider>
   );
 }

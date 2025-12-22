@@ -2,6 +2,7 @@ import React, { useEffect, useRef } from 'react';
 import Reveal from './Reveal';
 import { useMotionValue, useSpring } from 'framer-motion';
 import { useContent } from '../context/ContentContext';
+import Skeleton from 'react-loading-skeleton';
 
 const AnimatedCounter = ({ value, suffix = '' }: { value: number; suffix?: string }) => {
   const ref = useRef<HTMLSpanElement>(null);
@@ -43,17 +44,17 @@ const About: React.FC = () => {
             </Reveal>
             <Reveal>
               <h3 className="text-3xl md:text-5xl font-display font-bold leading-tight mb-8">
-                {about.heading}
+                {isLoading ? <Skeleton count={2} /> : about.heading}
               </h3>
             </Reveal>
             
             <Reveal delay={0.2}>
               <div className="space-y-6 text-neutral-400 text-lg font-light leading-relaxed">
                 <p>
-                  {about.bio1}
+                  {isLoading ? <Skeleton count={3} /> : about.bio1}
                 </p>
                 <p>
-                  {about.bio2}
+                  {isLoading ? <Skeleton count={3} /> : about.bio2}
                 </p>
               </div>
             </Reveal>
@@ -62,13 +63,13 @@ const About: React.FC = () => {
                 <div className="mt-10 grid grid-cols-2 gap-6">
                     <div>
                         <h4 className="text-white text-4xl font-bold mb-2">
-                          <AnimatedCounter value={about.yearsExp} suffix="+" />
+                           {isLoading ? <Skeleton width={50} /> : <AnimatedCounter value={about.yearsExp} suffix="+" />}
                         </h4>
                         <span className="text-neutral-500 text-sm uppercase tracking-wider">Years Experience</span>
                     </div>
                     <div>
                         <h4 className="text-white text-4xl font-bold mb-2">
-                          <AnimatedCounter value={about.projectsCompleted} suffix="+" />
+                           {isLoading ? <Skeleton width={50} /> : <AnimatedCounter value={about.projectsCompleted} suffix="+" />}
                         </h4>
                         <span className="text-neutral-500 text-sm uppercase tracking-wider">Projects Completed</span>
                     </div>
@@ -80,7 +81,9 @@ const About: React.FC = () => {
           <div className="w-full lg:w-1/2 relative">
              <Reveal width="100%" delay={0.3}>
                 {isLoading ? (
-                  <div className="aspect-[3/4] w-full max-w-md mx-auto bg-white/5 rounded-lg animate-pulse border border-white/10" />
+                  <div className="w-full max-w-md mx-auto">
+                    <Skeleton className="aspect-[3/4] rounded-lg" height="100%" />
+                  </div>
                 ) : (
                   <div className="relative aspect-[3/4] w-full max-w-md mx-auto grayscale hover:grayscale-0 transition-all duration-700 rounded-lg overflow-hidden group">
                       <img 

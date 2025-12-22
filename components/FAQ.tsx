@@ -3,10 +3,12 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Plus, Minus } from 'lucide-react';
 import Reveal from './Reveal';
 import { useContent } from '../context/ContentContext';
+import clsx from 'clsx';
+import Skeleton from 'react-loading-skeleton';
 
 const FAQ: React.FC = () => {
   const [openIndex, setOpenIndex] = useState<number | null>(null);
-  const { content } = useContent();
+  const { content, isLoading } = useContent();
 
   const toggleFAQ = (index: number) => {
     setOpenIndex(openIndex === index ? null : index);
@@ -22,19 +24,34 @@ const FAQ: React.FC = () => {
         </Reveal>
 
         <div className="space-y-4">
-          {content.faq.map((faq, index) => (
+          {isLoading 
+            ? Array.from({ length: 3 }).map((_, i) => (
+               <div key={i} className="border border-white/10 rounded-xl p-6">
+                 <Skeleton height={24} width="80%" />
+               </div>
+            )) 
+            : content.faq.map((faq, index) => (
             <Reveal key={index} width="100%" delay={index * 0.1}>
               <div 
-                className={`border border-white/10 rounded-xl overflow-hidden transition-colors duration-300 ${openIndex === index ? 'bg-white/5 border-white/20' : 'bg-transparent hover:border-white/20'}`}
+                className={clsx(
+                  "border border-white/10 rounded-xl overflow-hidden transition-colors duration-300",
+                  openIndex === index ? 'bg-white/5 border-white/20' : 'bg-transparent hover:border-white/20'
+                )}
               >
                 <button
                   onClick={() => toggleFAQ(index)}
                   className="w-full flex items-center justify-between p-6 text-left cursor-pointer group focus:outline-none"
                 >
-                  <span className={`font-semibold text-lg md:text-xl transition-colors pr-8 ${openIndex === index ? 'text-white' : 'text-neutral-300 group-hover:text-white'}`}>
+                  <span className={clsx(
+                    "font-semibold text-lg md:text-xl transition-colors pr-8",
+                    openIndex === index ? 'text-white' : 'text-neutral-300 group-hover:text-white'
+                  )}>
                     {faq.question}
                   </span>
-                  <div className={`flex-shrink-0 p-2 rounded-full border border-white/10 transition-colors duration-300 ${openIndex === index ? 'bg-accent border-accent text-white' : 'text-neutral-400 group-hover:text-white'}`}>
+                  <div className={clsx(
+                    "flex-shrink-0 p-2 rounded-full border border-white/10 transition-colors duration-300",
+                    openIndex === index ? 'bg-accent border-accent text-white' : 'text-neutral-400 group-hover:text-white'
+                  )}>
                     {openIndex === index ? <Minus size={18} /> : <Plus size={18} />}
                   </div>
                 </button>

@@ -1,8 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Play } from 'lucide-react';
 import Reveal from './Reveal';
-import Scrollbar from 'smooth-scrollbar';
 import { useContent } from '../context/ContentContext';
 
 const Hero: React.FC = () => {
@@ -12,13 +10,14 @@ const Hero: React.FC = () => {
   const handleScrollToWork = (e: React.MouseEvent<HTMLAnchorElement>) => {
     e.preventDefault();
     const element = document.getElementById('work');
-    const container = document.getElementById('scroll-container');
+    const scrollbar = (window as any).scrollbar;
 
-    if (element && container) {
-      const scrollbar = Scrollbar.get(container);
-      if (scrollbar) {
-        scrollbar.scrollIntoView(element, { offsetTop: 0 });
-      }
+    if (element) {
+        if (scrollbar) {
+            scrollbar.scrollIntoView(element, { offsetTop: 0, alignToTop: true });
+        } else {
+            element.scrollIntoView({ behavior: 'smooth' });
+        }
     }
   };
 
@@ -26,16 +25,9 @@ const Hero: React.FC = () => {
     <section id="home" className="relative min-h-screen flex items-center justify-center overflow-hidden pt-20">
       {/* Background Ambience */}
       <div className="absolute top-0 left-0 w-full h-full z-0 pointer-events-none">
-        {/* Top-Left: Large vibrant accent glow */}
         <div className="absolute -top-[20%] -left-[10%] w-[900px] h-[900px] bg-accent/30 rounded-full blur-[150px] animate-pulse"></div>
-        
-        {/* Bottom-Right: Deep emerald depth */}
         <div className="absolute bottom-[-10%] right-[-10%] w-[800px] h-[800px] bg-emerald-900/40 rounded-full blur-[130px]"></div>
-        
-        {/* Center: Subtle wide fill to connect the sides */}
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[1200px] h-[800px] bg-accent/10 rounded-full blur-[120px]"></div>
-        
-        {/* Noise Texture */}
         <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 mix-blend-overlay"></div>
       </div>
 
@@ -74,7 +66,6 @@ const Hero: React.FC = () => {
         </Reveal>
       </div>
 
-      {/* Scroll Indicator */}
       <motion.div 
         className="absolute bottom-10 w-full flex flex-col items-center justify-center gap-2 opacity-50 pointer-events-none"
         initial={{ opacity: 0, y: -20 }}
