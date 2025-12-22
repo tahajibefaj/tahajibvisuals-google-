@@ -10,7 +10,7 @@ interface ProjectModalProps {
   onClose: () => void;
 }
 
-const ProjectModal: React.FC<ProjectModalProps> = ({ project, isOpen, onClose }) => {
+export default function ProjectModal({ project, isOpen, onClose }: ProjectModalProps) {
   if (!isOpen) return null;
 
   return createPortal(
@@ -85,6 +85,4 @@ const ProjectModal: React.FC<ProjectModalProps> = ({ project, isOpen, onClose })
     </div>,
     document.body
   );
-};
-
-export default ProjectModal;
+}
