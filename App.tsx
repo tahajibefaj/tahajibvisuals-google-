@@ -20,6 +20,7 @@ function App() {
         thumbMinSize: 20,
         renderByPixels: true,
         alwaysShowTracks: false,
+        delegateTo: document, // Improves event handling for auto-scroll and inputs
       });
 
       scrollbar.addListener(({ offset }) => {

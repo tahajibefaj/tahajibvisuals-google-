@@ -45,11 +45,11 @@ const Services: React.FC = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           {services.map((service, index) => (
             <Reveal key={service.id} delay={index * 0.1} width="100%">
-              <div className="group p-8 h-full bg-surface border border-white/5 rounded-xl hover:border-accent/50 transition-colors duration-300 relative overflow-hidden cursor-hover-trigger">
+              <div className="group p-8 min-h-[320px] bg-surface border border-white/5 rounded-xl hover:border-accent/50 transition-colors duration-300 relative overflow-hidden cursor-hover-trigger flex flex-col">
                 {/* Hover Gradient */}
                 <div className="absolute inset-0 bg-gradient-to-br from-accent/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
                 
-                <div className="relative z-10">
+                <div className="relative z-10 flex-1">
                   <div className="w-12 h-12 bg-white/5 rounded-lg flex items-center justify-center mb-6 text-white group-hover:text-accent group-hover:scale-110 transition-all duration-300">
                     <service.icon size={24} strokeWidth={1.5} />
                   </div>

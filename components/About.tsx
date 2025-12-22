@@ -67,12 +67,12 @@ const About: React.FC = () => {
 
         {/* Interstitial CTA */}
         <Reveal width="100%" delay={0.6}>
-          <div className="mt-20 flex justify-center">
+          <div className="mt-24 flex justify-center">
              <a
               href="https://cal.com/tahajib-efaj-seugbc/calltoexplore"
               target="_blank"
               rel="noopener noreferrer"
-              className="px-8 py-3 bg-white text-black rounded-full text-sm font-bold uppercase tracking-widest hover:bg-accent hover:text-white hover:scale-105 transition-all duration-300 shadow-xl shadow-white/5"
+              className="px-12 py-5 bg-black border-2 border-white/20 text-white rounded-full text-lg font-bold uppercase tracking-widest hover:bg-white hover:text-black hover:scale-105 hover:border-white transition-all duration-300 shadow-2xl shadow-accent/10"
             >
               Ready?
             </a>

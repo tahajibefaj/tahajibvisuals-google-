@@ -2,8 +2,22 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { Play } from 'lucide-react';
 import Reveal from './Reveal';
+import Scrollbar from 'smooth-scrollbar';
 
 const Hero: React.FC = () => {
+  const handleScrollToWork = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    e.preventDefault();
+    const element = document.getElementById('work');
+    const container = document.getElementById('scroll-container');
+
+    if (element && container) {
+      const scrollbar = Scrollbar.get(container);
+      if (scrollbar) {
+        scrollbar.scrollIntoView(element, { offsetTop: 0 });
+      }
+    }
+  };
+
   return (
     <section id="home" className="relative min-h-screen flex items-center justify-center overflow-hidden pt-20">
       {/* Background Ambience */}
@@ -39,6 +53,7 @@ const Hero: React.FC = () => {
            <div className="flex flex-col md:flex-row items-center justify-center gap-6">
             <a 
               href="#work"
+              onClick={handleScrollToWork}
               className="group relative px-8 py-4 bg-white text-black rounded-full overflow-hidden flex items-center gap-3 font-semibold tracking-wide hover:scale-105 transition-transform duration-300"
             >
               <span className="relative z-10 group-hover:text-white transition-colors duration-300">View Projects</span>
@@ -50,12 +65,12 @@ const Hero: React.FC = () => {
 
       {/* Scroll Indicator */}
       <motion.div 
-        className="absolute bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 opacity-50"
+        className="absolute bottom-10 w-full flex flex-col items-center justify-center gap-2 opacity-50 pointer-events-none"
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 0.5, y: 0 }}
         transition={{ delay: 1, duration: 1 }}
       >
-        <span className="text-[10px] uppercase tracking-[0.2em]">Scroll</span>
+        <span className="text-[10px] uppercase tracking-[0.2em] text-center">Scroll</span>
         <div className="w-[1px] h-12 bg-gradient-to-b from-white to-transparent"></div>
       </motion.div>
     </section>

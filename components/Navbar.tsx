@@ -37,16 +37,14 @@ const Navbar: React.FC<NavbarProps> = ({ isScrolled }) => {
   };
 
   return (
-    <nav className={`fixed top-0 left-0 w-full z-50 flex justify-center transition-all duration-500 ease-in-out ${isScrolled ? 'py-4' : 'py-6'}`}>
-      <motion.div 
-        layout
-        transition={{ type: "spring", damping: 25, stiffness: 120 }}
-        className={`
+    <nav className="fixed top-0 left-0 w-full z-50 flex justify-center py-4">
+      <div 
+        className="
           flex items-center justify-between 
           bg-neutral-900/80 backdrop-blur-xl border border-white/10 
           rounded-full px-6 py-3 shadow-2xl shadow-black/50
-          ${isScrolled ? 'w-[92%] md:w-auto gap-4' : 'w-[95%] md:w-full md:max-w-5xl gap-8'}
-        `}
+          w-[92%] md:w-auto gap-4 md:min-w-[600px]
+        "
       >
         {/* Logo */}
         <a 
@@ -97,7 +95,7 @@ const Navbar: React.FC<NavbarProps> = ({ isScrolled }) => {
         >
           {mobileMenuOpen ? <X size={20} /> : <Menu size={20} />}
         </button>
-      </motion.div>
+      </div>
 
       {/* Mobile Menu */}
       <AnimatePresence>

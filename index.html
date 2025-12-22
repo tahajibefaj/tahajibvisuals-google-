@@ -42,9 +42,13 @@
       }
 
       body {
-        cursor: none; /* Hide default cursor for custom one */
+        cursor: none !important; /* Hide default cursor for custom one */
         overflow: hidden; /* Important for smooth-scrollbar */
         background-color: #000;
+      }
+
+      a, button, [role="button"], input, select, textarea {
+        cursor: none !important;
       }
 
       /* Smooth Scrollbar Customization */
@@ -65,8 +69,8 @@
       
       /* Mobile cursor reset */
       @media (pointer: coarse) {
-        body {
-          cursor: auto;
+        body, a, button, input, select, textarea {
+          cursor: auto !important;
         }
       }
       

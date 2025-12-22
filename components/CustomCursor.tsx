@@ -13,17 +13,15 @@ const CustomCursor: React.FC = () => {
     const handleMouseOver = (e: MouseEvent) => {
       const target = e.target as HTMLElement;
       // Check if hovering over clickable elements
-      if (
+      const isClickable = 
         target.tagName.toLowerCase() === 'a' ||
         target.tagName.toLowerCase() === 'button' ||
         target.closest('a') ||
         target.closest('button') ||
-        target.classList.contains('cursor-hover-trigger')
-      ) {
-        setIsHovering(true);
-      } else {
-        setIsHovering(false);
-      }
+        target.closest('[role="button"]') ||
+        target.classList.contains('cursor-hover-trigger');
+        
+      setIsHovering(!!isClickable);
     };
 
     window.addEventListener('mousemove', updateMousePosition);
@@ -43,9 +41,9 @@ const CustomCursor: React.FC = () => {
         animate={{
           x: mousePosition.x - 6,
           y: mousePosition.y - 6,
-          scale: isHovering ? 0 : 1,
+          scale: isHovering ? 2 : 1, // Enlarge on hover instead of disappear
         }}
-        transition={{ type: "tween", ease: "backOut", duration: 0.1 }}
+        transition={{ type: "tween", ease: "backOut", duration: 0.15 }}
       />
       {/* Outer ring */}
       <motion.div
@@ -53,9 +51,10 @@ const CustomCursor: React.FC = () => {
         animate={{
           x: mousePosition.x - 16,
           y: mousePosition.y - 16,
-          scale: isHovering ? 2 : 1,
-          borderColor: isHovering ? 'rgba(147, 51, 234, 0.8)' : 'rgba(255, 255, 255, 0.3)',
-          backgroundColor: isHovering ? 'rgba(147, 51, 234, 0.1)' : 'transparent',
+          scale: isHovering ? 1.5 : 1,
+          borderColor: isHovering ? 'rgba(147, 51, 234, 0.5)' : 'rgba(255, 255, 255, 0.3)',
+          backgroundColor: isHovering ? 'rgba(147, 51, 234, 0.05)' : 'transparent',
+          borderWidth: isHovering ? '0px' : '1px',
         }}
         transition={{ type: "spring", stiffness: 150, damping: 15, mass: 0.1 }}
       />
