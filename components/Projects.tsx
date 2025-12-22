@@ -10,7 +10,7 @@ const projects: Project[] = [
     id: 1,
     title: "Neon Cyberpunk Ad",
     category: "Motion Graphics",
-    thumbnail: "https://picsum.photos/800/600?random=1",
+    thumbnail: "https://i.imgur.com/WNLkEqt.jpeg",
     description: "A high-energy futuristic advertisement featuring neon aesthetics and glitch effects created in After Effects.",
     tools: ["After Effects", "Blender", "Premiere Pro"]
   },
@@ -18,7 +18,7 @@ const projects: Project[] = [
     id: 2,
     title: "Minimalist Brand Story",
     category: "Video Editing",
-    thumbnail: "https://picsum.photos/800/600?random=2",
+    thumbnail: "https://i.imgur.com/WNLkEqt.jpeg",
     description: "Clean, corporate storytelling for a tech startup launch. Focus on pacing and sound design.",
     tools: ["Premiere Pro", "DaVinci Resolve"]
   },
@@ -26,7 +26,7 @@ const projects: Project[] = [
     id: 3,
     title: "Urban Fashion Edit",
     category: "Social Media",
-    thumbnail: "https://picsum.photos/800/600?random=3",
+    thumbnail: "https://i.imgur.com/WNLkEqt.jpeg",
     description: "Fast-cut Instagram reel for a streetwear brand. Vertical format optimization and trendy transitions.",
     tools: ["Premiere Pro", "CapCut"]
   },
@@ -34,7 +34,7 @@ const projects: Project[] = [
     id: 4,
     title: "Kinetic Typography",
     category: "Motion Graphics",
-    thumbnail: "https://picsum.photos/800/600?random=4",
+    thumbnail: "https://i.imgur.com/WNLkEqt.jpeg",
     description: "Lyric video demonstrating advanced kinetic typography techniques and syncopated motion.",
     tools: ["After Effects"]
   },

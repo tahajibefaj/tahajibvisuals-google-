@@ -1,7 +1,7 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
-import { motion } from 'framer-motion';
-import { X, ExternalLink } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { X, Play } from 'lucide-react';
 import { Project } from '../types';
 
 interface ProjectModalProps {
@@ -11,6 +11,13 @@ interface ProjectModalProps {
 }
 
 const ProjectModal: React.FC<ProjectModalProps> = ({ project, isOpen, onClose }) => {
+  const [isPlaying, setIsPlaying] = useState(false);
+
+  // Reset state when modal opens/closes
+  useEffect(() => {
+    if (isOpen) setIsPlaying(false);
+  }, [isOpen]);
+
   if (!isOpen) return null;
 
   return createPortal(
@@ -38,24 +45,42 @@ const ProjectModal: React.FC<ProjectModalProps> = ({ project, isOpen, onClose })
           <X size={24} />
         </button>
 
-        <div className="flex flex-col lg:flex-row">
+        <div className="flex flex-col lg:flex-row h-full">
           {/* Media Section */}
-          <div className="w-full lg:w-2/3 bg-black aspect-video lg:aspect-auto min-h-[300px] lg:min-h-[500px] flex items-center justify-center relative overflow-hidden">
-             {/* Simulating a video player or high res image */}
-             <img 
-               src={project.thumbnail} 
-               alt={project.title} 
-               className="w-full h-full object-cover opacity-80"
-             />
-             <div className="absolute inset-0 flex items-center justify-center">
-                 <div className="w-20 h-20 bg-accent/90 rounded-full flex items-center justify-center cursor-pointer hover:scale-110 transition-transform">
-                     <div className="w-0 h-0 border-t-[10px] border-t-transparent border-l-[18px] border-l-black border-b-[10px] border-b-transparent ml-1"></div>
+          <div className="w-full lg:w-2/3 bg-black aspect-video lg:h-auto min-h-[300px] flex items-center justify-center relative overflow-hidden">
+             
+             {!isPlaying ? (
+               <>
+                 <img 
+                   src={project.thumbnail} 
+                   alt={project.title} 
+                   className="w-full h-full object-cover opacity-80"
+                 />
+                 <div className="absolute inset-0 flex items-center justify-center">
+                     <button 
+                        onClick={() => setIsPlaying(true)}
+                        className="w-20 h-20 bg-accent/90 rounded-full flex items-center justify-center cursor-pointer hover:scale-110 transition-transform group"
+                     >
+                         <Play size={32} fill="white" className="text-white ml-1" />
+                     </button>
                  </div>
-             </div>
+               </>
+             ) : (
+                <iframe 
+                  width="100%" 
+                  height="100%" 
+                  src="https://www.youtube.com/embed/VLjt-VX8CQI?autoplay=1&rel=0" 
+                  title="YouTube video player" 
+                  frameBorder="0" 
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
+                  allowFullScreen
+                  className="absolute inset-0 w-full h-full"
+                ></iframe>
+             )}
           </div>
 
           {/* Details Section */}
-          <div className="w-full lg:w-1/3 p-8 lg:p-10 flex flex-col h-full bg-surface">
+          <div className="w-full lg:w-1/3 p-8 lg:p-10 flex flex-col bg-surface">
             <span className="text-accent text-sm tracking-widest uppercase mb-2">{project.category}</span>
             <h3 className="text-3xl font-display font-bold text-white mb-6 leading-tight">{project.title}</h3>
             
@@ -72,12 +97,6 @@ const ProjectModal: React.FC<ProjectModalProps> = ({ project, isOpen, onClose })
               <p>
                 This project focuses on visual retention, using fast-paced editing techniques combined with smooth motion graphics to keep viewer engagement high throughout the entire duration.
               </p>
-            </div>
-
-            <div className="mt-10 pt-6 border-t border-white/10">
-                <a href="#" className="flex items-center gap-2 text-white hover:text-accent transition-colors font-medium">
-                    View Live Project <ExternalLink size={16} />
-                </a>
             </div>
           </div>
         </div>

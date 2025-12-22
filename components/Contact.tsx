@@ -7,20 +7,50 @@ const Contact: React.FC = () => {
   const [formState, setFormState] = useState({
     name: '',
     email: '',
-    type: 'Video Editing',
+    videoType: 'Video Editing',
+    budget: '$500 - $1,000',
     message: ''
   });
   
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState('');
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Simulate form submission
-    console.log(formState);
-    setTimeout(() => {
-      setIsSubmitted(true);
-      setFormState({ name: '', email: '', type: 'Video Editing', message: '' });
-    }, 1000);
+    setIsSubmitting(true);
+    setError('');
+
+    try {
+      const response = await fetch("https://formsubmit.co/ajax/contact.tahajib@gmail.com", {
+        method: "POST",
+        headers: { 
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        },
+        body: JSON.stringify({
+          ...formState,
+          _subject: `New Project Inquiry from ${formState.name}`,
+        })
+      });
+
+      if (response.ok) {
+        setIsSubmitted(true);
+        setFormState({ 
+            name: '', 
+            email: '', 
+            videoType: 'Video Editing', 
+            budget: '$500 - $1,000', 
+            message: '' 
+        });
+      } else {
+        setError('Something went wrong. Please try again.');
+      }
+    } catch (err) {
+      setError('Connection failed. Please check your internet.');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
@@ -57,12 +87,15 @@ const Contact: React.FC = () => {
             </Reveal>
             
             <Reveal delay={0.3}>
-              <div className="flex items-center gap-4 text-white hover:text-accent transition-colors mb-4">
-                <div className="w-12 h-12 rounded-full bg-surface border border-white/10 flex items-center justify-center">
+              <a 
+                href="mailto:contact.tahajib@gmail.com" 
+                className="flex items-center gap-4 text-white hover:text-accent transition-colors mb-4 group w-fit"
+              >
+                <div className="w-12 h-12 rounded-full bg-surface border border-white/10 flex items-center justify-center group-hover:border-accent transition-colors">
                     <Mail size={20} />
                 </div>
-                <span className="text-lg">hello@tahajibvisuals.com</span>
-              </div>
+                <span className="text-lg">contact.tahajib@gmail.com</span>
+              </a>
             </Reveal>
           </div>
 
@@ -115,32 +148,55 @@ const Contact: React.FC = () => {
                 </div>
               </div>
 
-              <div className="space-y-2">
-                <label htmlFor="type" className="text-xs uppercase tracking-wider text-neutral-500">Project Type</label>
-                <div className="relative">
-                  <select
-                    id="type"
-                    name="type"
-                    value={formState.type}
-                    onChange={handleChange}
-                    className="w-full bg-black/50 border border-white/10 rounded-lg p-3 text-white appearance-none focus:outline-none focus:border-accent transition-colors"
-                  >
-                    <option>Video Editing</option>
-                    <option>Motion Graphics</option>
-                    <option>Short-Form Content</option>
-                    <option>Brand Video</option>
-                    <option>Other</option>
-                  </select>
-                  <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-neutral-500 text-xs">▼</div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="space-y-2">
+                  <label htmlFor="videoType" className="text-xs uppercase tracking-wider text-neutral-500">Video Type</label>
+                  <div className="relative">
+                    <select
+                      id="videoType"
+                      name="videoType"
+                      value={formState.videoType}
+                      onChange={handleChange}
+                      className="w-full bg-black/50 border border-white/10 rounded-lg p-3 text-white appearance-none focus:outline-none focus:border-accent transition-colors"
+                    >
+                      <option>Video Editing</option>
+                      <option>Motion Graphics</option>
+                      <option>Short-Form Content</option>
+                      <option>Brand Video</option>
+                      <option>YouTube Long-Form</option>
+                      <option>Other</option>
+                    </select>
+                    <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-neutral-500 text-xs">▼</div>
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <label htmlFor="budget" className="text-xs uppercase tracking-wider text-neutral-500">Budget Range</label>
+                  <div className="relative">
+                    <select
+                      id="budget"
+                      name="budget"
+                      value={formState.budget}
+                      onChange={handleChange}
+                      className="w-full bg-black/50 border border-white/10 rounded-lg p-3 text-white appearance-none focus:outline-none focus:border-accent transition-colors"
+                    >
+                      <option>$500 - $1,000</option>
+                      <option>$1,000 - $3,000</option>
+                      <option>$3,000 - $5,000</option>
+                      <option>$5,000+</option>
+                    </select>
+                    <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-neutral-500 text-xs">▼</div>
+                  </div>
                 </div>
               </div>
 
               <div className="space-y-2">
-                <label htmlFor="message" className="text-xs uppercase tracking-wider text-neutral-500">Message</label>
+                <label htmlFor="message" className="text-xs uppercase tracking-wider text-neutral-500">Message / Vision</label>
                 <textarea
                   id="message"
                   name="message"
                   rows={4}
+                  required
                   value={formState.message}
                   onChange={handleChange}
                   className="w-full bg-black/50 border border-white/10 rounded-lg p-3 text-white focus:outline-none focus:border-accent transition-colors resize-none"
@@ -148,12 +204,15 @@ const Contact: React.FC = () => {
                 ></textarea>
               </div>
 
+              {error && <p className="text-red-500 text-sm">{error}</p>}
+
               <button
                 type="submit"
-                className="w-full py-4 bg-white text-black font-bold rounded-lg hover:bg-accent transition-colors flex items-center justify-center gap-2 group"
+                disabled={isSubmitting}
+                className="w-full py-4 bg-white text-black font-bold rounded-lg hover:bg-accent hover:text-white transition-all duration-300 flex items-center justify-center gap-2 group disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                Send Request 
-                <Send size={18} className="group-hover:translate-x-1 transition-transform" />
+                {isSubmitting ? 'Sending...' : 'Send Request'}
+                {!isSubmitting && <Send size={18} className="group-hover:translate-x-1 transition-transform" />}
               </button>
             </form>
           </div>
@@ -167,7 +226,7 @@ const Contact: React.FC = () => {
               {socialLinks.map((social) => (
                 <a 
                   key={social.label}
-                  href="#"
+                  href="#home"
                   className="group flex items-center justify-center w-16 h-16 rounded-full border border-white/10 bg-surface hover:bg-accent hover:border-accent transition-all duration-300 relative cursor-hover-trigger"
                   aria-label={social.label}
                 >
