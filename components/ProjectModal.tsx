@@ -18,6 +18,18 @@ const ProjectModal: React.FC<ProjectModalProps> = ({ project, isOpen, onClose })
     if (isOpen) setIsPlaying(false);
   }, [isOpen]);
 
+  // Lock body scroll when modal is open
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [isOpen]);
+
   if (!isOpen) return null;
 
   return createPortal(
@@ -35,7 +47,7 @@ const ProjectModal: React.FC<ProjectModalProps> = ({ project, isOpen, onClose })
         animate={{ y: 0, opacity: 1 }}
         exit={{ y: 100, opacity: 0 }}
         transition={{ type: "spring", damping: 25, stiffness: 200 }}
-        className="relative bg-surface w-full max-w-7xl max-h-[90vh] overflow-y-auto overflow-x-hidden rounded-xl border border-white/10 shadow-2xl custom-scrollbar"
+        className="relative bg-surface w-full max-w-7xl max-h-[90vh] overflow-hidden rounded-xl border border-white/10 shadow-2xl flex flex-col"
         onClick={(e) => e.stopPropagation()} 
       >
         <button
@@ -45,9 +57,9 @@ const ProjectModal: React.FC<ProjectModalProps> = ({ project, isOpen, onClose })
           <X size={24} />
         </button>
 
-        <div className="flex flex-col lg:flex-row h-full">
+        <div className="flex flex-col lg:flex-row h-full overflow-hidden">
           {/* Media Section */}
-          <div className="w-full lg:w-2/3 bg-black flex items-center justify-center relative lg:min-h-full">
+          <div className="w-full lg:w-2/3 bg-black flex items-center justify-center relative lg:h-full shrink-0">
              <div className="w-full aspect-video relative">
                {!isPlaying ? (
                  <>
@@ -81,7 +93,7 @@ const ProjectModal: React.FC<ProjectModalProps> = ({ project, isOpen, onClose })
           </div>
 
           {/* Details Section */}
-          <div className="w-full lg:w-1/3 p-8 lg:p-10 flex flex-col bg-surface">
+          <div className="w-full lg:w-1/3 p-8 lg:p-10 flex flex-col bg-surface overflow-y-auto custom-scrollbar">
             <span className="text-accent text-sm tracking-widest uppercase mb-2">{project.category}</span>
             <h3 className="text-3xl font-display font-bold text-white mb-6 leading-tight">{project.title}</h3>
             
