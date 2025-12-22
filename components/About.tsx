@@ -63,8 +63,21 @@ const About: React.FC = () => {
                 </div>
              </Reveal>
           </div>
-          
         </div>
+
+        {/* Interstitial CTA */}
+        <Reveal width="100%" delay={0.6}>
+          <div className="mt-20 flex justify-center">
+             <a
+              href="https://cal.com/tahajib-efaj-seugbc/calltoexplore"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="px-8 py-3 bg-white text-black rounded-full text-sm font-bold uppercase tracking-widest hover:bg-accent hover:text-white hover:scale-105 transition-all duration-300 shadow-xl shadow-white/5"
+            >
+              Ready?
+            </a>
+          </div>
+        </Reveal>
       </div>
     </section>
   );

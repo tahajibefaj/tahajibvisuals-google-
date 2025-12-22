@@ -44,16 +44,6 @@ const Hero: React.FC = () => {
               <span className="relative z-10 group-hover:text-white transition-colors duration-300">View Projects</span>
               <div className="absolute inset-0 bg-accent translate-y-full group-hover:translate-y-0 transition-transform duration-300 z-0"></div>
             </a>
-            
-            <a 
-              href="#contact"
-              className="flex items-center gap-3 text-neutral-400 hover:text-white transition-colors group cursor-pointer"
-            >
-              <div className="w-10 h-10 rounded-full border border-white/20 flex items-center justify-center group-hover:border-accent group-hover:text-accent transition-colors">
-                 <Play size={14} fill="currentColor" />
-              </div>
-              <span className="text-sm uppercase tracking-widest">Showreel</span>
-            </a>
           </div>
         </Reveal>
       </div>

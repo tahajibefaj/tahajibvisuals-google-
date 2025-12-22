@@ -37,46 +37,54 @@ const Navbar: React.FC<NavbarProps> = ({ isScrolled }) => {
   };
 
   return (
-    <nav
-      className={`fixed top-0 w-full z-50 transition-all duration-300 ${
-        isScrolled ? 'bg-black/80 backdrop-blur-md py-4 border-b border-white/5' : 'bg-transparent py-6'
-      }`}
-    >
-      <div className="container mx-auto px-6 md:px-12 flex justify-between items-center">
+    <nav className={`fixed top-0 left-0 w-full z-50 flex justify-center transition-all duration-500 ease-in-out ${isScrolled ? 'py-4' : 'py-6'}`}>
+      <motion.div 
+        layout
+        transition={{ type: "spring", damping: 25, stiffness: 120 }}
+        className={`
+          flex items-center justify-between 
+          bg-neutral-900/80 backdrop-blur-xl border border-white/10 
+          rounded-full px-6 py-3 shadow-2xl shadow-black/50
+          ${isScrolled ? 'w-[92%] md:w-auto gap-4' : 'w-[95%] md:w-full md:max-w-5xl gap-8'}
+        `}
+      >
         {/* Logo */}
         <a 
           href="#home" 
           onClick={(e) => handleNavClick(e, '#home')}
-          className="z-50 group cursor-pointer"
+          className="z-50 group cursor-pointer flex-shrink-0"
         >
           <div className="flex flex-col leading-tight">
-             <span className="font-display font-bold text-xl tracking-widest text-white group-hover:text-accent transition-colors duration-300">
+             <span className="font-display font-bold text-lg tracking-widest text-white group-hover:text-accent transition-colors duration-300">
               TAHAJIB
             </span>
-            <span className="text-[0.6rem] tracking-[0.3em] text-neutral-400 uppercase">
+            <span className="text-[0.6rem] tracking-[0.3em] text-neutral-400 uppercase group-hover:text-white transition-colors duration-300">
               Visuals
             </span>
           </div>
         </a>
 
-        {/* Desktop Nav */}
-        <div className="hidden md:flex items-center gap-10">
+        {/* Desktop Nav - Pill Tabs */}
+        <div className="hidden md:flex items-center gap-1 bg-white/5 rounded-full p-1 border border-white/5">
           {navItems.map((item) => (
             <a
               key={item.label}
               href={item.href}
               onClick={(e) => handleNavClick(e, item.href)}
-              className="text-sm uppercase tracking-widest text-neutral-400 hover:text-white transition-colors duration-300 relative group cursor-pointer"
+              className="px-5 py-2 rounded-full text-xs uppercase tracking-widest text-neutral-400 hover:text-white hover:bg-white/10 transition-all duration-300"
             >
               {item.label}
-              <span className="absolute -bottom-1 left-0 w-0 h-[1px] bg-accent transition-all duration-300 group-hover:w-full"></span>
             </a>
           ))}
+        </div>
+
+        {/* CTA */}
+        <div className="hidden md:block flex-shrink-0">
           <a
             href="https://cal.com/tahajib-efaj-seugbc/calltoexplore"
             target="_blank"
             rel="noopener noreferrer"
-            className="px-6 py-2 border border-white/20 rounded-full text-xs uppercase tracking-widest hover:bg-white hover:text-black transition-all duration-300"
+            className="px-6 py-2.5 bg-white text-black rounded-full text-xs font-bold uppercase tracking-widest hover:bg-accent hover:text-white transition-all duration-300 block"
           >
             Book a Call
           </a>
@@ -84,12 +92,12 @@ const Navbar: React.FC<NavbarProps> = ({ isScrolled }) => {
 
         {/* Mobile Toggle */}
         <button
-          className="md:hidden z-50 text-white"
+          className="md:hidden z-50 text-white p-2"
           onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
         >
-          {mobileMenuOpen ? <X /> : <Menu />}
+          {mobileMenuOpen ? <X size={20} /> : <Menu size={20} />}
         </button>
-      </div>
+      </motion.div>
 
       {/* Mobile Menu */}
       <AnimatePresence>
