@@ -3,7 +3,6 @@ import { createPortal } from 'react-dom';
 import { motion } from 'framer-motion';
 import { X, Play } from 'lucide-react';
 import { Project } from '../types';
-import clsx from 'clsx';
 
 interface ProjectModalProps {
   project: Project;
@@ -32,13 +31,28 @@ const ProjectModal: React.FC<ProjectModalProps> = ({ project, isOpen, onClose })
 
   if (!isOpen) return null;
 
+  /**
+   * ROBUST YOUTUBE URL PARSER
+   * Converts Watch, Shorts, and Short-links to Embed format.
+   */
   const getEmbedUrl = (url?: string) => {
-    const defaultUrl = "https://www.youtube.com/embed/VLjt-VX8CQI";
-    const targetUrl = url || defaultUrl;
-    // Strip existing params to ensure clean slate and correct configuration
-    const baseUrl = targetUrl.split('?')[0];
-    // Added modestbranding, rel=0, controls=1, playsinline=1, fs=1
-    return `${baseUrl}?autoplay=1&rel=0&modestbranding=1&playsinline=1&controls=1&showinfo=0&fs=1`;
+    if (!url) return "https://www.youtube.com/embed/VLjt-VX8CQI";
+    
+    // Regex to capture the video ID from:
+    // 1. youtube.com/watch?v=ID
+    // 2. youtube.com/embed/ID
+    // 3. youtube.com/shorts/ID
+    // 4. youtu.be/ID
+    const regExp = /^.*((youtu.be\/)|(v\/)|(\/u\/\w\/)|(embed\/)|(watch\?v=)|(shorts\/))([^#&?]*).*/;
+    const match = url.match(regExp);
+    const videoId = (match && match[8].length === 11) ? match[8] : null;
+
+    if (videoId) {
+         return `https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0&modestbranding=1&playsinline=1&controls=1&showinfo=0&fs=1`;
+    }
+    
+    // Fallback: Return original if it looks like an embed, or default
+    return url.includes('embed') ? url : "https://www.youtube.com/embed/VLjt-VX8CQI"; 
   };
 
   return createPortal(
@@ -60,6 +74,8 @@ const ProjectModal: React.FC<ProjectModalProps> = ({ project, isOpen, onClose })
         style={{
             height: 'min(90vh, 900px)',
             width: 'min(90vw, 1400px)',
+            maxHeight: '90vh',
+            maxWidth: '1400px'
         }}
         onClick={(e) => e.stopPropagation()} 
       >
@@ -71,24 +87,19 @@ const ProjectModal: React.FC<ProjectModalProps> = ({ project, isOpen, onClose })
         </button>
 
         {/* 
-           LEFT COLUMN: Media
-           - Flex center
-           - Overflow hidden
-           - Fixed height on mobile, full height on desktop
+           LEFT COLUMN: Video Area
+           - Flexbox centers content.
+           - Overflow hidden prevents sliders.
         */}
-        <div className="w-full h-[35vh] lg:h-full bg-black relative flex items-center justify-center overflow-hidden order-1 lg:order-none">
+        <div className="w-full h-[40vh] lg:h-full bg-black relative flex items-center justify-center overflow-hidden order-1 lg:order-none">
              
-             {/* VIDEO WRAPPER (MANDATORY 16:9 CONTAINMENT) */}
-             <div 
-                className="relative bg-black shadow-2xl flex items-center justify-center overflow-hidden"
-                style={{
-                   width: 'auto',
-                   height: 'auto',
-                   maxWidth: '100%',
-                   maxHeight: '100%',
-                   aspectRatio: '16 / 9'
-                }}
-             >
+             {/* 
+                VIDEO WRAPPER (16:9 ENFORCED)
+                - 'w-full aspect-video' enforces ratio based on width.
+                - 'max-h-full' ensures it fits vertically if container is short.
+                - 'relative' allows absolute positioning of iframe.
+             */}
+             <div className="relative w-full aspect-video max-h-full mx-auto bg-black shadow-2xl">
                {!isPlaying ? (
                  <>
                    <img 
@@ -96,10 +107,10 @@ const ProjectModal: React.FC<ProjectModalProps> = ({ project, isOpen, onClose })
                      alt={project.title} 
                      className="absolute inset-0 w-full h-full object-cover opacity-80"
                    />
-                   <div className="absolute inset-0 flex items-center justify-center">
+                   <div className="absolute inset-0 flex items-center justify-center z-10">
                        <button 
                           onClick={() => setIsPlaying(true)}
-                          className="w-20 h-20 bg-accent/90 rounded-full flex items-center justify-center cursor-pointer hover:scale-110 transition-transform group z-10"
+                          className="w-20 h-20 bg-accent/90 rounded-full flex items-center justify-center cursor-pointer hover:scale-110 transition-transform group"
                        >
                            <Play size={32} fill="white" className="text-white ml-1" />
                        </button>
@@ -109,7 +120,7 @@ const ProjectModal: React.FC<ProjectModalProps> = ({ project, isOpen, onClose })
                   <iframe 
                     src={getEmbedUrl(project.videoUrl)} 
                     title={project.title}
-                    className="w-full h-full block border-none overflow-hidden"
+                    className="absolute inset-0 w-full h-full border-none"
                     allow="autoplay; encrypted-media; picture-in-picture; fullscreen" 
                     allowFullScreen
                   ></iframe>
@@ -119,8 +130,8 @@ const ProjectModal: React.FC<ProjectModalProps> = ({ project, isOpen, onClose })
 
         {/* 
            RIGHT COLUMN: Text Content
-           - Scrolled vertically
-           - No horizontal scroll
+           - Only THIS column scrolls vertically.
+           - No horizontal scroll.
         */}
         <div className="w-full h-full bg-surface flex flex-col overflow-y-auto overflow-x-hidden custom-scrollbar border-t lg:border-t-0 lg:border-l lg:border-white/5 relative z-10 order-2 lg:order-none">
             <div className="p-8 lg:p-10 lg:pt-16">
@@ -137,6 +148,7 @@ const ProjectModal: React.FC<ProjectModalProps> = ({ project, isOpen, onClose })
 
                 <div className="space-y-6 text-neutral-400 leading-relaxed">
                 <p>{project.description}</p>
+                {/* Static description for layout retention */}
                 <p>
                     This project focuses on visual retention, using fast-paced editing techniques combined with smooth motion graphics to keep viewer engagement high throughout the entire duration.
                 </p>

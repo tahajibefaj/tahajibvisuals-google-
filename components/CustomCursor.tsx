@@ -2,11 +2,12 @@ import React, { useEffect, useState } from 'react';
 import { motion, useMotionValue, useSpring } from 'framer-motion';
 
 const CustomCursor: React.FC = () => {
-  // Use MotionValues for high-performance updates without re-renders
+  // Use MotionValues for high-performance updates
   const cursorX = useMotionValue(-100);
   const cursorY = useMotionValue(-100);
   
-  const springConfig = { damping: 20, stiffness: 450, mass: 0.5 };
+  // Smooth spring physics configuration
+  const springConfig = { damping: 25, stiffness: 400, mass: 0.4 };
   const cursorXSpring = useSpring(cursorX, springConfig);
   const cursorYSpring = useSpring(cursorY, springConfig);
 
@@ -14,19 +15,17 @@ const CustomCursor: React.FC = () => {
   const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
+    // Unified handler for Mouse and Touch events
     const moveCursor = (e: MouseEvent | TouchEvent) => {
       let clientX, clientY;
       
-      if (window.matchMedia("(pointer: coarse)").matches && 'touches' in e) {
-          // For touch devices, we might want to track touch, but often custom cursors are hidden.
-          // Requirement: "Cursor stays visible... Size slightly reduced" on mobile.
-          if (e.touches && e.touches.length > 0) {
-              clientX = e.touches[0].clientX;
-              clientY = e.touches[0].clientY;
-          }
+      // Check for touch points first
+      if ('touches' in e && e.touches.length > 0) {
+        clientX = e.touches[0].clientX;
+        clientY = e.touches[0].clientY;
       } else if ('clientX' in e) {
-          clientX = (e as MouseEvent).clientX;
-          clientY = (e as MouseEvent).clientY;
+        clientX = (e as MouseEvent).clientX;
+        clientY = (e as MouseEvent).clientY;
       }
 
       if (clientX !== undefined && clientY !== undefined) {
@@ -38,6 +37,8 @@ const CustomCursor: React.FC = () => {
 
     const handleMouseOver = (e: MouseEvent) => {
       const target = e.target as HTMLElement;
+      
+      // Check if the element or its parent is interactive
       const isClickable = 
         target.tagName.toLowerCase() === 'a' ||
         target.tagName.toLowerCase() === 'button' ||
@@ -64,11 +65,19 @@ const CustomCursor: React.FC = () => {
     };
   }, [cursorX, cursorY, isVisible]);
 
+  // If user hasn't interacted, don't render to avoid (0,0) position artifact
   if (!isVisible) return null;
 
   return (
     <>
-      {/* Main Dot - Always top z-index */}
+      {/* Global CSS to hide default cursor where appropriate */}
+      <style>{`
+        body, a, button, input, select, textarea { 
+            cursor: none !important; 
+        }
+      `}</style>
+
+      {/* Main Dot - Always stays on top */}
       <motion.div
         className="fixed top-0 left-0 bg-accent rounded-full pointer-events-none z-[9999] mix-blend-difference"
         style={{
@@ -78,13 +87,13 @@ const CustomCursor: React.FC = () => {
           translateY: '-50%',
         }}
         animate={{
-          width: isHovering ? 28 : 12,
-          height: isHovering ? 28 : 12,
+          width: isHovering ? 32 : 12, // Increased hover size for better feedback
+          height: isHovering ? 32 : 12,
         }}
         transition={{ type: "tween", ease: "backOut", duration: 0.2 }}
       />
       
-      {/* Outer Ring - Disappears into dot on hover */}
+      {/* Outer Ring - Disappears into the dot on hover */}
       <motion.div
         className="fixed top-0 left-0 border border-white/50 rounded-full pointer-events-none z-[9998]"
         style={{
