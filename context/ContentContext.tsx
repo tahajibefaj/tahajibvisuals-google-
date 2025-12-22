@@ -1,46 +1,36 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { SiteContent } from '../types';
 import { defaultContent } from '../utils/defaultContent';
+import { fetchGoogleSheetData } from '../utils/googleSheet';
 
 interface ContentContextType {
   content: SiteContent;
-  updateContent: (newContent: SiteContent) => void;
-  resetContent: () => void;
+  isLoading: boolean;
 }
 
 const ContentContext = createContext<ContentContextType | undefined>(undefined);
 
 export const ContentProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [content, setContent] = useState<SiteContent>(defaultContent);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // Load content from localStorage on mount to persist changes
-    const savedContent = localStorage.getItem('siteContent');
-    if (savedContent) {
+    const loadData = async () => {
       try {
-        const parsed = JSON.parse(savedContent);
-        // Basic check to ensure structure matches default (merge to avoid breaking if new fields added)
-        setContent((prev) => ({ ...prev, ...parsed }));
+        const sheetData = await fetchGoogleSheetData();
+        setContent(sheetData);
       } catch (e) {
-        console.error("Failed to load content", e);
+        console.error("Failed to load content source", e);
+      } finally {
+        setIsLoading(false);
       }
-    }
+    };
+
+    loadData();
   }, []);
 
-  const updateContent = (newContent: SiteContent) => {
-    setContent(newContent);
-    localStorage.setItem('siteContent', JSON.stringify(newContent));
-  };
-
-  const resetContent = () => {
-    if (window.confirm("Are you sure you want to reset all content to default?")) {
-      setContent(defaultContent);
-      localStorage.removeItem('siteContent');
-    }
-  };
-
   return (
-    <ContentContext.Provider value={{ content, updateContent, resetContent }}>
+    <ContentContext.Provider value={{ content, isLoading }}>
       {children}
     </ContentContext.Provider>
   );

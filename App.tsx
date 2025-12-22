@@ -8,32 +8,15 @@ import Contact from './components/Contact';
 import FAQ from './components/FAQ';
 import Footer from './components/Footer';
 import CustomCursor from './components/CustomCursor';
-import AdminPanel from './components/AdminPanel';
 import { ContentProvider } from './context/ContentContext';
 import Scrollbar from 'smooth-scrollbar';
 
 function App() {
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const [isScrolled, setIsScrolled] = useState(false);
-  const [isAdmin, setIsAdmin] = useState(false);
 
   useEffect(() => {
-    // Check for admin route hash
-    const checkHash = () => {
-      if (window.location.hash === '#admin') {
-        setIsAdmin(true);
-      } else {
-        setIsAdmin(false);
-      }
-    };
-
-    checkHash();
-    window.addEventListener('hashchange', checkHash);
-    return () => window.removeEventListener('hashchange', checkHash);
-  }, []);
-
-  useEffect(() => {
-    if (scrollContainerRef.current && !isAdmin) {
+    if (scrollContainerRef.current) {
       const scrollbar = Scrollbar.init(scrollContainerRef.current, {
         damping: 0.07,
         thumbMinSize: 20,
@@ -50,16 +33,7 @@ function App() {
         if (scrollbar) scrollbar.destroy();
       };
     }
-  }, [isAdmin]);
-
-  if (isAdmin) {
-    return (
-      <ContentProvider>
-        <CustomCursor />
-        <AdminPanel />
-      </ContentProvider>
-    );
-  }
+  }, []);
 
   return (
     <ContentProvider>
