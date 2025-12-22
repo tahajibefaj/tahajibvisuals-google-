@@ -5,7 +5,7 @@ import Reveal from './Reveal';
 
 const Hero: React.FC = () => {
   return (
-    <section className="relative min-h-screen flex items-center justify-center overflow-hidden pt-20">
+    <section id="home" className="relative min-h-screen flex items-center justify-center overflow-hidden pt-20">
       {/* Background Ambience */}
       <div className="absolute top-0 left-0 w-full h-full z-0">
         <div className="absolute top-1/4 left-1/4 w-[500px] h-[500px] bg-accent/10 rounded-full blur-[120px] opacity-20 animate-pulse"></div>

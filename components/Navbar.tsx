@@ -44,7 +44,11 @@ const Navbar: React.FC<NavbarProps> = ({ isScrolled }) => {
     >
       <div className="container mx-auto px-6 md:px-12 flex justify-between items-center">
         {/* Logo */}
-        <a href="https://tahajibvisuals-google.vercel.app/" className="z-50 group">
+        <a 
+          href="#home" 
+          onClick={(e) => handleNavClick(e, '#home')}
+          className="z-50 group cursor-pointer"
+        >
           <div className="flex flex-col leading-tight">
              <span className="font-display font-bold text-xl tracking-widest text-white group-hover:text-accent transition-colors duration-300">
               TAHAJIB
