@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Menu, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import Scrollbar from 'smooth-scrollbar';
 
 const navItems = [
   { label: 'Work', href: '#work' },
@@ -16,6 +17,25 @@ interface NavbarProps {
 const Navbar: React.FC<NavbarProps> = ({ isScrolled }) => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
+  // Helper to handle scrolling with smooth-scrollbar
+  const handleNavClick = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
+    e.preventDefault();
+    const targetId = href.replace('#', '');
+    const element = document.getElementById(targetId);
+    const container = document.getElementById('scroll-container');
+
+    if (element && container) {
+      const scrollbar = Scrollbar.get(container);
+      if (scrollbar) {
+        scrollbar.scrollIntoView(element, {
+          offsetTop: 100, // Offset for sticky navbar
+          offsetLeft: 0,
+        });
+      }
+    }
+    setMobileMenuOpen(false);
+  };
+
   return (
     <nav
       className={`fixed top-0 w-full z-50 transition-all duration-300 ${
@@ -24,7 +44,7 @@ const Navbar: React.FC<NavbarProps> = ({ isScrolled }) => {
     >
       <div className="container mx-auto px-6 md:px-12 flex justify-between items-center">
         {/* Logo */}
-        <a href="#" className="z-50 group">
+        <a href="https://tahajibvisuals-google.vercel.app/" className="z-50 group">
           <div className="flex flex-col leading-tight">
              <span className="font-display font-bold text-xl tracking-widest text-white group-hover:text-accent transition-colors duration-300">
               TAHAJIB
@@ -41,17 +61,20 @@ const Navbar: React.FC<NavbarProps> = ({ isScrolled }) => {
             <a
               key={item.label}
               href={item.href}
-              className="text-sm uppercase tracking-widest text-neutral-400 hover:text-white transition-colors duration-300 relative group"
+              onClick={(e) => handleNavClick(e, item.href)}
+              className="text-sm uppercase tracking-widest text-neutral-400 hover:text-white transition-colors duration-300 relative group cursor-pointer"
             >
               {item.label}
               <span className="absolute -bottom-1 left-0 w-0 h-[1px] bg-accent transition-all duration-300 group-hover:w-full"></span>
             </a>
           ))}
           <a
-            href="#contact"
+            href="https://cal.com/tahajib-efaj-seugbc/calltoexplore"
+            target="_blank"
+            rel="noopener noreferrer"
             className="px-6 py-2 border border-white/20 rounded-full text-xs uppercase tracking-widest hover:bg-white hover:text-black transition-all duration-300"
           >
-            Start Project
+            Book a Call
           </a>
         </div>
 
@@ -77,18 +100,20 @@ const Navbar: React.FC<NavbarProps> = ({ isScrolled }) => {
               <a
                 key={item.label}
                 href={item.href}
-                onClick={() => setMobileMenuOpen(false)}
+                onClick={(e) => handleNavClick(e, item.href)}
                 className="text-3xl font-display font-bold text-neutral-300 hover:text-accent transition-colors"
               >
                 {item.label}
               </a>
             ))}
             <a
-              href="#contact"
+              href="https://cal.com/tahajib-efaj-seugbc/calltoexplore"
+              target="_blank"
+              rel="noopener noreferrer"
               onClick={() => setMobileMenuOpen(false)}
               className="mt-8 px-8 py-3 border border-accent text-accent rounded-full text-sm uppercase tracking-widest hover:bg-accent hover:text-black transition-all"
             >
-              Start Project
+              Book a Call
             </a>
           </motion.div>
         )}
