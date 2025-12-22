@@ -1,19 +1,18 @@
 import React, { useEffect, useRef } from 'react';
 import Reveal from './Reveal';
-import { useInView, useMotionValue, useSpring } from 'framer-motion';
+import { useMotionValue, useSpring } from 'framer-motion';
 
 const AnimatedCounter = ({ value, suffix = '' }: { value: number; suffix?: string }) => {
   const ref = useRef<HTMLSpanElement>(null);
-  const isInView = useInView(ref, { once: true, margin: "-20px" });
   const motionValue = useMotionValue(0);
-  // Adjusted spring physics for a smoother, slightly slower "premium" feel
-  const springValue = useSpring(motionValue, { damping: 30, stiffness: 60 });
+  
+  // Faster, stiffer spring for immediate, intentional animation
+  const springValue = useSpring(motionValue, { damping: 20, stiffness: 100 });
 
   useEffect(() => {
-    if (isInView) {
-      motionValue.set(value);
-    }
-  }, [isInView, value, motionValue]);
+    // Trigger animation immediately on mount, ignoring scroll position
+    motionValue.set(value);
+  }, [value, motionValue]);
 
   useEffect(() => {
     const unsubscribe = springValue.on("change", (latest) => {

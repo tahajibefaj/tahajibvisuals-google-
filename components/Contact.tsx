@@ -7,7 +7,7 @@ const Contact: React.FC = () => {
   const [formState, setFormState] = useState({
     name: '',
     email: '',
-    videoType: 'Video Editing',
+    videoType: 'Short Form Videos',
     budget: '$500 - $1,000',
     message: ''
   });
@@ -39,7 +39,7 @@ const Contact: React.FC = () => {
         setFormState({ 
             name: '', 
             email: '', 
-            videoType: 'Video Editing', 
+            videoType: 'Short Form Videos', 
             budget: '$500 - $1,000', 
             message: '' 
         });
@@ -130,7 +130,7 @@ const Contact: React.FC = () => {
                     value={formState.name}
                     onChange={handleChange}
                     className="w-full bg-black/50 border border-white/10 rounded-lg p-3 text-white focus:outline-none focus:border-accent transition-colors"
-                    placeholder="John Doe"
+                    placeholder="Alex Rafael"
                   />
                 </div>
                 <div className="space-y-2">
@@ -143,7 +143,7 @@ const Contact: React.FC = () => {
                     value={formState.email}
                     onChange={handleChange}
                     className="w-full bg-black/50 border border-white/10 rounded-lg p-3 text-white focus:outline-none focus:border-accent transition-colors"
-                    placeholder="john@example.com"
+                    placeholder="hi@xyz.com"
                   />
                 </div>
               </div>
@@ -159,11 +159,9 @@ const Contact: React.FC = () => {
                       onChange={handleChange}
                       className="w-full bg-black/50 border border-white/10 rounded-lg p-3 text-white appearance-none focus:outline-none focus:border-accent transition-colors"
                     >
-                      <option>Video Editing</option>
-                      <option>Motion Graphics</option>
-                      <option>Short-Form Content</option>
-                      <option>Brand Video</option>
-                      <option>YouTube Long-Form</option>
+                      <option>Short Form Videos</option>
+                      <option>Youtube Videos / VSL's</option>
+                      <option>Motion Graphics / Explainer Ads</option>
                       <option>Other</option>
                     </select>
                     <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-neutral-500 text-xs">▼</div>
