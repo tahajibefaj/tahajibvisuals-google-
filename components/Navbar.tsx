@@ -53,7 +53,7 @@ const Navbar: React.FC<NavbarProps> = ({ isScrolled }) => {
           className="z-50 group cursor-pointer flex-shrink-0"
         >
           <div className="flex flex-col leading-tight">
-             <span className="font-display font-bold text-lg tracking-widest text-white group-hover:text-accent transition-colors duration-300">
+             <span className="font-logo font-bold text-lg tracking-widest text-white group-hover:text-accent transition-colors duration-300">
               TAHAJIB
             </span>
             <span className="text-[0.6rem] tracking-[0.3em] text-neutral-400 uppercase group-hover:text-white transition-colors duration-300">

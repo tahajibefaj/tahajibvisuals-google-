@@ -10,6 +10,12 @@ const CustomCursor: React.FC = () => {
       setMousePosition({ x: e.clientX, y: e.clientY });
     };
 
+    const updateTouchPosition = (e: TouchEvent) => {
+      if (e.touches.length > 0) {
+        setMousePosition({ x: e.touches[0].clientX, y: e.touches[0].clientY });
+      }
+    };
+
     const handleMouseOver = (e: MouseEvent) => {
       const target = e.target as HTMLElement;
       // Check if hovering over clickable elements
@@ -25,10 +31,12 @@ const CustomCursor: React.FC = () => {
     };
 
     window.addEventListener('mousemove', updateMousePosition);
+    window.addEventListener('touchmove', updateTouchPosition);
     window.addEventListener('mouseover', handleMouseOver);
 
     return () => {
       window.removeEventListener('mousemove', updateMousePosition);
+      window.removeEventListener('touchmove', updateTouchPosition);
       window.removeEventListener('mouseover', handleMouseOver);
     };
   }, []);
@@ -37,7 +45,7 @@ const CustomCursor: React.FC = () => {
     <>
       {/* Main dot */}
       <motion.div
-        className="fixed top-0 left-0 w-3 h-3 bg-accent rounded-full pointer-events-none z-[9999] mix-blend-difference hidden md:block"
+        className="fixed top-0 left-0 w-3 h-3 bg-accent rounded-full pointer-events-none z-[9999] mix-blend-difference"
         animate={{
           x: mousePosition.x - 6,
           y: mousePosition.y - 6,
@@ -47,7 +55,7 @@ const CustomCursor: React.FC = () => {
       />
       {/* Outer ring */}
       <motion.div
-        className="fixed top-0 left-0 w-8 h-8 border border-white/50 rounded-full pointer-events-none z-[9999] hidden md:block"
+        className="fixed top-0 left-0 w-8 h-8 border border-white/50 rounded-full pointer-events-none z-[9999]"
         animate={{
           x: mousePosition.x - 16,
           y: mousePosition.y - 16,

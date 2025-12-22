@@ -21,9 +21,17 @@ const Hero: React.FC = () => {
   return (
     <section id="home" className="relative min-h-screen flex items-center justify-center overflow-hidden pt-20">
       {/* Background Ambience */}
-      <div className="absolute top-0 left-0 w-full h-full z-0">
-        <div className="absolute top-1/4 left-1/4 w-[500px] h-[500px] bg-accent/10 rounded-full blur-[120px] opacity-20 animate-pulse"></div>
-        <div className="absolute bottom-1/4 right-1/4 w-[400px] h-[400px] bg-violet-900/20 rounded-full blur-[100px] opacity-20"></div>
+      <div className="absolute top-0 left-0 w-full h-full z-0 pointer-events-none">
+        {/* Top-Left: Large vibrant accent glow */}
+        <div className="absolute -top-[20%] -left-[10%] w-[900px] h-[900px] bg-accent/30 rounded-full blur-[150px] animate-pulse"></div>
+        
+        {/* Bottom-Right: Deep violet depth */}
+        <div className="absolute bottom-[-10%] right-[-10%] w-[800px] h-[800px] bg-violet-900/40 rounded-full blur-[130px]"></div>
+        
+        {/* Center: Subtle wide fill to connect the sides */}
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[1200px] h-[800px] bg-accent/10 rounded-full blur-[120px]"></div>
+        
+        {/* Noise Texture */}
         <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 mix-blend-overlay"></div>
       </div>
 
