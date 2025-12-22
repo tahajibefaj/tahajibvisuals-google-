@@ -1,63 +1,65 @@
 import { supabase } from './supabaseClient';
 import { defaultContent } from './defaultContent';
-import { SiteContent } from '../types';
+import { SiteContent, Project } from '../types';
 
 export const fetchContent = async (): Promise<SiteContent> => {
   // If Supabase isn't configured, fallback gracefully
   if (!supabase) {
-    console.warn("Supabase client not configured. Using default content.");
     return defaultContent;
   }
 
   try {
-    const [textRes, servicesRes, faqsRes] = await Promise.all([
-      supabase.from('content_text').select('*'),
-      supabase.from('content_services').select('*').order('display_order'),
-      supabase.from('content_faqs').select('*').order('display_order'),
+    // Fetch links, stats, AND projects
+    const [linksRes, statsRes, projectsRes] = await Promise.all([
+      supabase.from('links').select('*'),
+      supabase.from('stats').select('*'),
+      supabase.from('projects').select('*').order('display_order', { ascending: true }),
     ]);
 
-    if (textRes.error) throw textRes.error;
-    if (servicesRes.error) throw servicesRes.error;
-    if (faqsRes.error) throw faqsRes.error;
+    if (linksRes.error) throw linksRes.error;
+    if (statsRes.error) throw statsRes.error;
+    if (projectsRes.error) throw projectsRes.error;
 
-    // Start with a deep copy of default content to ensure structure exists
+    // Start with default content
     const newContent: SiteContent = JSON.parse(JSON.stringify(defaultContent));
 
-    // 1. Map Text Key-Values
-    textRes.data.forEach((row: any) => {
-      const { section, key, value } = row;
-      
-      // Check if section exists in our type
-      if (newContent[section as keyof SiteContent]) {
-        const sectionObj = newContent[section as keyof SiteContent] as any;
-        
-        // Handle Numeric conversions for About section
-        if (section === 'about' && (key === 'yearsExp' || key === 'projectsCompleted')) {
-           sectionObj[key] = Number(value);
-        } 
-        // Handle standard strings
-        else if (key in sectionObj) {
-           sectionObj[key] = value;
+    // 1. Map Links (Booking, About Image, Socials)
+    if (linksRes.data) {
+      linksRes.data.forEach((item: any) => {
+        if (item.key === 'booking') {
+          newContent.navbar.ctaLink = item.url;
+          newContent.about.ctaLink = item.url;
+        } else if (item.key === 'about_image') {
+          newContent.about.image = item.url;
+        } else if (item.key in newContent.socials) {
+          newContent.socials[item.key as keyof typeof newContent.socials] = item.url;
         }
-      }
-    });
-
-    // 2. Map Services
-    // We map the DB ID to the internal ID (1-4) based on index to ensure Icons line up correctly
-    if (servicesRes.data.length > 0) {
-      newContent.services = servicesRes.data.map((s: any, index: number) => ({
-        id: index + 1, // Force ID 1-4 for icon mapping
-        title: s.title,
-        description: s.description
-      }));
+      });
     }
 
-    // 3. Map FAQs
-    if (faqsRes.data.length > 0) {
-      newContent.faq = faqsRes.data.map((f: any) => ({
-        question: f.question,
-        answer: f.answer
+    // 2. Map Stats
+    if (statsRes.data) {
+      statsRes.data.forEach((item: any) => {
+        if (item.key === 'years_experience') {
+          newContent.about.yearsExp = item.value;
+        } else if (item.key === 'projects_completed') {
+          newContent.about.projectsCompleted = item.value;
+        }
+      });
+    }
+
+    // 3. Map Projects
+    if (projectsRes.data && projectsRes.data.length > 0) {
+      const dbProjects: Project[] = projectsRes.data.map((item: any) => ({
+        id: item.id,
+        title: item.title,
+        category: item.category,
+        thumbnail: item.thumbnail,
+        videoUrl: item.video_url, // Maps snake_case SQL to camelCase prop
+        description: item.description,
+        tools: item.tools,
       }));
+      newContent.projects.items = dbProjects;
     }
 
     return newContent;

@@ -6,41 +6,6 @@ import { Project } from '../types';
 import { ArrowUpRight } from 'lucide-react';
 import { useContent } from '../context/ContentContext';
 
-const projects: Project[] = [
-  {
-    id: 1,
-    title: "Neon Cyberpunk Ad",
-    category: "Motion Graphics",
-    thumbnail: "https://i.imgur.com/WNLkEqt.jpeg",
-    description: "A high-energy futuristic advertisement featuring neon aesthetics and glitch effects created in After Effects.",
-    tools: ["After Effects", "Blender", "Premiere Pro"]
-  },
-  {
-    id: 2,
-    title: "Minimalist Brand Story",
-    category: "Video Editing",
-    thumbnail: "https://i.imgur.com/WNLkEqt.jpeg",
-    description: "Clean, corporate storytelling for a tech startup launch. Focus on pacing and sound design.",
-    tools: ["Premiere Pro", "DaVinci Resolve"]
-  },
-  {
-    id: 3,
-    title: "Urban Fashion Edit",
-    category: "Social Media",
-    thumbnail: "https://i.imgur.com/WNLkEqt.jpeg",
-    description: "Fast-cut Instagram reel for a streetwear brand. Vertical format optimization and trendy transitions.",
-    tools: ["Premiere Pro", "CapCut"]
-  },
-  {
-    id: 4,
-    title: "Kinetic Typography",
-    category: "Motion Graphics",
-    thumbnail: "https://i.imgur.com/WNLkEqt.jpeg",
-    description: "Lyric video demonstrating advanced kinetic typography techniques and syncopated motion.",
-    tools: ["After Effects"]
-  },
-];
-
 const Projects: React.FC = () => {
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
   const { content } = useContent();
@@ -60,7 +25,7 @@ const Projects: React.FC = () => {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          {projects.map((project, index) => (
+          {content.projects.items.map((project, index) => (
             <Reveal key={project.id} width="100%" delay={index * 0.1}>
               <motion.div
                 className="group relative aspect-[4/3] overflow-hidden rounded-lg cursor-pointer cursor-hover-trigger"

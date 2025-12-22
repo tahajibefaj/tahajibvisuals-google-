@@ -37,6 +37,7 @@ export interface SiteContent {
   projects: {
       heading: string;
       subheading: string;
+      items: Project[];
   };
   about: {
     heading: string;
@@ -46,6 +47,7 @@ export interface SiteContent {
     projectsCompleted: number;
     ctaText: string;
     ctaLink: string;
+    image: string;
   };
   services: {
     id: number;

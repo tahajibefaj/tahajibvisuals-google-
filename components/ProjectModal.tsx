@@ -69,7 +69,7 @@ const ProjectModal: React.FC<ProjectModalProps> = ({ project, isOpen, onClose })
                 <iframe 
                   width="100%" 
                   height="100%" 
-                  src="https://www.youtube.com/embed/VLjt-VX8CQI?autoplay=1&rel=0&modestbranding=1" 
+                  src={project.videoUrl || "https://www.youtube.com/embed/VLjt-VX8CQI?autoplay=1&rel=0&modestbranding=1"} 
                   title="YouTube video player" 
                   frameBorder="0" 
                   allow="autoplay; encrypted-media; picture-in-picture" 

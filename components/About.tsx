@@ -81,7 +81,7 @@ const About: React.FC = () => {
              <Reveal width="100%" delay={0.3}>
                 <div className="relative aspect-[3/4] w-full max-w-md mx-auto grayscale hover:grayscale-0 transition-all duration-700 rounded-lg overflow-hidden group">
                     <img 
-                        src="https://picsum.photos/600/800?random=5" 
+                        src={about.image} 
                         alt="Profile" 
                         className="w-full h-full object-cover"
                     />
