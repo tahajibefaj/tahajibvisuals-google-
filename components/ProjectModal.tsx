@@ -41,14 +41,8 @@ const ProjectModal: React.FC<ProjectModalProps> = ({ project, isOpen, onClose })
     return `${baseUrl}?autoplay=1&rel=0&modestbranding=1&playsinline=1&controls=1&showinfo=0&fs=1`;
   };
 
-  // Heuristic for vertical video based on category or keywords
-  const isVertical = project.category.toLowerCase().includes('social') || 
-                     project.category.toLowerCase().includes('short') || 
-                     project.category.toLowerCase().includes('reel') ||
-                     project.category.toLowerCase().includes('tiktok');
-
   return createPortal(
-    <div className="fixed inset-0 z-[100] flex items-center justify-center px-4 md:px-0 overflow-hidden">
+    <div className="fixed inset-0 z-[100] flex items-center justify-center overflow-hidden">
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
@@ -58,12 +52,15 @@ const ProjectModal: React.FC<ProjectModalProps> = ({ project, isOpen, onClose })
       />
       
       <motion.div
-        initial={{ y: 100, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        exit={{ y: 100, opacity: 0 }}
+        initial={{ y: 50, opacity: 0, scale: 0.98 }}
+        animate={{ y: 0, opacity: 1, scale: 1 }}
+        exit={{ y: 50, opacity: 0, scale: 0.98 }}
         transition={{ type: "spring", damping: 25, stiffness: 200 }}
-        // MODAL CONTAINER: overflow-hidden, fixed max-height, flex layout
-        className="relative bg-surface w-full max-w-7xl h-[85vh] md:h-[90vh] overflow-hidden rounded-xl border border-white/10 shadow-2xl flex flex-col lg:flex-row"
+        className="relative bg-surface rounded-xl border border-white/10 shadow-2xl overflow-hidden flex flex-col lg:grid lg:grid-cols-[1fr_420px]"
+        style={{
+            height: 'min(90vh, 900px)',
+            width: 'min(90vw, 1400px)',
+        }}
         onClick={(e) => e.stopPropagation()} 
       >
         <button
@@ -75,30 +72,22 @@ const ProjectModal: React.FC<ProjectModalProps> = ({ project, isOpen, onClose })
 
         {/* 
            LEFT COLUMN: Media
-           - Flex container to center content
-           - Overflow hidden to prevent video from spilling
-           - Fixed height on mobile to ensure split view, full height on desktop
+           - Flex center
+           - Overflow hidden
+           - Fixed height on mobile, full height on desktop
         */}
-        <div className="w-full lg:flex-1 bg-black relative flex items-center justify-center overflow-hidden h-[40vh] lg:h-full shrink-0">
+        <div className="w-full h-[35vh] lg:h-full bg-black relative flex items-center justify-center overflow-hidden order-1 lg:order-none">
              
-             {/* VIDEO WRAPPER 
-                 - Uses aspect-ratio to shape the box
-                 - Uses max-width/max-height to contain within parent
-                 - Auto margins to center if flex didn't (but flex does)
-             */}
-             <div className={clsx(
-               "relative shadow-2xl bg-black",
-               isVertical ? "aspect-[9/16]" : "aspect-video"
-             )}
-             style={{
-               width: 'auto',
-               height: 'auto',
-               maxWidth: '100%',
-               maxHeight: '100%',
-               // Ensure it takes up space if constraints allow
-               minWidth: isVertical ? 'auto' : '50%', 
-               minHeight: isVertical ? '50%' : 'auto'
-             }}
+             {/* VIDEO WRAPPER (MANDATORY 16:9 CONTAINMENT) */}
+             <div 
+                className="relative bg-black shadow-2xl flex items-center justify-center overflow-hidden"
+                style={{
+                   width: 'auto',
+                   height: 'auto',
+                   maxWidth: '100%',
+                   maxHeight: '100%',
+                   aspectRatio: '16 / 9'
+                }}
              >
                {!isPlaying ? (
                  <>
@@ -120,7 +109,7 @@ const ProjectModal: React.FC<ProjectModalProps> = ({ project, isOpen, onClose })
                   <iframe 
                     src={getEmbedUrl(project.videoUrl)} 
                     title={project.title}
-                    className="absolute inset-0 w-full h-full block border-none overflow-hidden"
+                    className="w-full h-full block border-none overflow-hidden"
                     allow="autoplay; encrypted-media; picture-in-picture; fullscreen" 
                     allowFullScreen
                   ></iframe>
@@ -130,11 +119,11 @@ const ProjectModal: React.FC<ProjectModalProps> = ({ project, isOpen, onClose })
 
         {/* 
            RIGHT COLUMN: Text Content
-           - Overflow-y-auto to allow scrolling text
-           - Fixed width on desktop
+           - Scrolled vertically
+           - No horizontal scroll
         */}
-        <div className="w-full lg:w-[400px] xl:w-[450px] bg-surface flex flex-col overflow-y-auto custom-scrollbar flex-shrink-0 lg:border-l lg:border-white/5 relative z-10">
-            <div className="p-8 lg:p-10 mt-0 lg:mt-12">
+        <div className="w-full h-full bg-surface flex flex-col overflow-y-auto overflow-x-hidden custom-scrollbar border-t lg:border-t-0 lg:border-l lg:border-white/5 relative z-10 order-2 lg:order-none">
+            <div className="p-8 lg:p-10 lg:pt-16">
                 <span className="text-accent text-sm tracking-widest uppercase mb-2 block">{project.category}</span>
                 <h3 className="text-3xl font-display font-bold text-white mb-6 leading-tight">{project.title}</h3>
                 
