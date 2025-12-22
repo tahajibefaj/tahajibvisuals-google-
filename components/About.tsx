@@ -1,5 +1,30 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import Reveal from './Reveal';
+import { useInView, useMotionValue, useSpring } from 'framer-motion';
+
+const AnimatedCounter = ({ value, suffix = '' }: { value: number; suffix?: string }) => {
+  const ref = useRef<HTMLSpanElement>(null);
+  const isInView = useInView(ref, { once: true, margin: "-20px" });
+  const motionValue = useMotionValue(0);
+  const springValue = useSpring(motionValue, { damping: 50, stiffness: 75 });
+
+  useEffect(() => {
+    if (isInView) {
+      motionValue.set(value);
+    }
+  }, [isInView, value, motionValue]);
+
+  useEffect(() => {
+    const unsubscribe = springValue.on("change", (latest) => {
+      if (ref.current) {
+        ref.current.textContent = Math.floor(latest).toFixed(0) + suffix;
+      }
+    });
+    return () => unsubscribe();
+  }, [springValue, suffix]);
+
+  return <span ref={ref}>0{suffix}</span>;
+};
 
 const About: React.FC = () => {
   return (
@@ -35,11 +60,15 @@ const About: React.FC = () => {
             <Reveal delay={0.4}>
                 <div className="mt-10 grid grid-cols-2 gap-6">
                     <div>
-                        <h4 className="text-white text-4xl font-bold mb-2">4+</h4>
+                        <h4 className="text-white text-4xl font-bold mb-2">
+                          <AnimatedCounter value={4} suffix="+" />
+                        </h4>
                         <span className="text-neutral-500 text-sm uppercase tracking-wider">Years Experience</span>
                     </div>
                     <div>
-                        <h4 className="text-white text-4xl font-bold mb-2">100+</h4>
+                        <h4 className="text-white text-4xl font-bold mb-2">
+                          <AnimatedCounter value={100} suffix="+" />
+                        </h4>
                         <span className="text-neutral-500 text-sm uppercase tracking-wider">Projects Completed</span>
                     </div>
                 </div>
