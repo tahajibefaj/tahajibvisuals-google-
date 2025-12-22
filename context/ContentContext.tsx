@@ -1,6 +1,7 @@
-import React, { createContext, useContext, useState } from 'react';
+import React, { createContext, useContext, useState, useEffect } from 'react';
 import { SiteContent } from '../types';
 import { defaultContent } from '../utils/defaultContent';
+import { fetchContent } from '../utils/fetchContent';
 
 interface ContentContextType {
   content: SiteContent;
@@ -10,11 +11,27 @@ interface ContentContextType {
 const ContentContext = createContext<ContentContextType | undefined>(undefined);
 
 export const ContentProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  // Use defaultContent directly without fetching
-  const [content] = useState<SiteContent>(defaultContent);
+  // Initialize with default content so the site renders immediately (SSR-friendly)
+  const [content, setContent] = useState<SiteContent>(defaultContent);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const loadData = async () => {
+      try {
+        const dbContent = await fetchContent();
+        setContent(dbContent);
+      } catch (e) {
+        console.error("Failed to load content", e);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadData();
+  }, []);
 
   return (
-    <ContentContext.Provider value={{ content, isLoading: false }}>
+    <ContentContext.Provider value={{ content, isLoading }}>
       {children}
     </ContentContext.Provider>
   );
