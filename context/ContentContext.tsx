@@ -1,7 +1,6 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState } from 'react';
 import { SiteContent } from '../types';
 import { defaultContent } from '../utils/defaultContent';
-import { fetchGoogleSheetData } from '../utils/googleSheet';
 
 interface ContentContextType {
   content: SiteContent;
@@ -11,26 +10,11 @@ interface ContentContextType {
 const ContentContext = createContext<ContentContextType | undefined>(undefined);
 
 export const ContentProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [content, setContent] = useState<SiteContent>(defaultContent);
-  const [isLoading, setIsLoading] = useState(true);
-
-  useEffect(() => {
-    const loadData = async () => {
-      try {
-        const sheetData = await fetchGoogleSheetData();
-        setContent(sheetData);
-      } catch (e) {
-        console.error("Failed to load content source", e);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    loadData();
-  }, []);
+  // Use defaultContent directly without fetching
+  const [content] = useState<SiteContent>(defaultContent);
 
   return (
-    <ContentContext.Provider value={{ content, isLoading }}>
+    <ContentContext.Provider value={{ content, isLoading: false }}>
       {children}
     </ContentContext.Provider>
   );
