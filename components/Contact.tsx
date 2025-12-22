@@ -2,8 +2,12 @@ import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import Reveal from './Reveal';
 import { Send, Mail, CheckCircle, Instagram, Facebook, Twitter, Linkedin } from 'lucide-react';
+import { useContent } from '../context/ContentContext';
 
 const Contact: React.FC = () => {
+  const { content } = useContent();
+  const { contact, socials } = content;
+  
   const [formState, setFormState] = useState({
     name: '',
     email: '',
@@ -22,7 +26,7 @@ const Contact: React.FC = () => {
     setError('');
 
     try {
-      const response = await fetch("https://formsubmit.co/ajax/contact.tahajib@gmail.com", {
+      const response = await fetch(`https://formsubmit.co/ajax/${contact.email}`, {
         method: "POST",
         headers: { 
           'Content-Type': 'application/json',
@@ -61,10 +65,10 @@ const Contact: React.FC = () => {
   };
 
   const socialLinks = [
-    { icon: Instagram, label: "Instagram" },
-    { icon: Facebook, label: "Facebook" },
-    { icon: Twitter, label: "Twitter" },
-    { icon: Linkedin, label: "LinkedIn" },
+    { icon: Instagram, label: "Instagram", href: socials.instagram },
+    { icon: Facebook, label: "Facebook", href: socials.facebook },
+    { icon: Twitter, label: "Twitter", href: socials.twitter },
+    { icon: Linkedin, label: "LinkedIn", href: socials.linkedin },
   ];
 
   return (
@@ -78,23 +82,25 @@ const Contact: React.FC = () => {
           <div>
             <Reveal>
               <h2 className="text-sm text-accent uppercase tracking-[0.2em] mb-4">Get In Touch</h2>
-              <h3 className="text-4xl md:text-6xl font-display font-bold text-white mb-6">Let's create something <br />extraordinary.</h3>
+              <h3 className="text-4xl md:text-6xl font-display font-bold text-white mb-6">
+                 {contact.heading}
+              </h3>
             </Reveal>
             <Reveal delay={0.2}>
               <p className="text-neutral-400 text-lg mb-10 max-w-md">
-                Ready to elevate your content? Fill out the form, and let's discuss how we can bring your vision to life.
+                {contact.subheading}
               </p>
             </Reveal>
             
             <Reveal delay={0.3}>
               <a 
-                href="mailto:contact.tahajib@gmail.com" 
+                href={`mailto:${contact.email}`} 
                 className="flex items-center gap-4 text-white hover:text-accent transition-colors mb-4 group w-fit"
               >
                 <div className="w-12 h-12 rounded-full bg-surface border border-white/10 flex items-center justify-center group-hover:border-accent transition-colors">
                     <Mail size={20} />
                 </div>
-                <span className="text-lg">contact.tahajib@gmail.com</span>
+                <span className="text-lg">{contact.email}</span>
               </a>
             </Reveal>
           </div>
@@ -224,7 +230,9 @@ const Contact: React.FC = () => {
               {socialLinks.map((social) => (
                 <a 
                   key={social.label}
-                  href="#home"
+                  href={social.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
                   className="group flex items-center justify-center w-16 h-16 rounded-full border border-white/10 bg-surface hover:bg-accent hover:border-accent transition-all duration-300 relative cursor-hover-trigger"
                   aria-label={social.label}
                 >

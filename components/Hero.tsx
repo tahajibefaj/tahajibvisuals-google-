@@ -3,8 +3,12 @@ import { motion } from 'framer-motion';
 import { Play } from 'lucide-react';
 import Reveal from './Reveal';
 import Scrollbar from 'smooth-scrollbar';
+import { useContent } from '../context/ContentContext';
 
 const Hero: React.FC = () => {
+  const { content } = useContent();
+  const { hero } = content;
+
   const handleScrollToWork = (e: React.MouseEvent<HTMLAnchorElement>) => {
     e.preventDefault();
     const element = document.getElementById('work');
@@ -25,8 +29,8 @@ const Hero: React.FC = () => {
         {/* Top-Left: Large vibrant accent glow */}
         <div className="absolute -top-[20%] -left-[10%] w-[900px] h-[900px] bg-accent/30 rounded-full blur-[150px] animate-pulse"></div>
         
-        {/* Bottom-Right: Deep violet depth */}
-        <div className="absolute bottom-[-10%] right-[-10%] w-[800px] h-[800px] bg-violet-900/40 rounded-full blur-[130px]"></div>
+        {/* Bottom-Right: Deep emerald depth */}
+        <div className="absolute bottom-[-10%] right-[-10%] w-[800px] h-[800px] bg-emerald-900/40 rounded-full blur-[130px]"></div>
         
         {/* Center: Subtle wide fill to connect the sides */}
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[1200px] h-[800px] bg-accent/10 rounded-full blur-[120px]"></div>
@@ -38,22 +42,21 @@ const Hero: React.FC = () => {
       <div className="container mx-auto px-6 relative z-10 text-center">
         <Reveal width="100%">
           <h2 className="text-sm md:text-base text-accent tracking-[0.3em] uppercase mb-6 font-medium">
-            Cinematic Motion & Visuals
+            {hero.subtitle}
           </h2>
         </Reveal>
 
         <div className="mb-8">
             <Reveal width="100%">
             <h1 className="font-display font-bold text-5xl md:text-8xl lg:text-9xl leading-tight tracking-tighter text-transparent bg-clip-text bg-gradient-to-b from-white to-neutral-500">
-              TAHAJIB <br /> EFAJ
+              {hero.titleLine1} <br /> {hero.titleLine2}
             </h1>
           </Reveal>
         </div>
 
         <Reveal width="100%" delay={0.4}>
           <p className="text-neutral-400 max-w-2xl mx-auto text-lg md:text-xl leading-relaxed font-light mb-12">
-            A Video Editor & Motion Graphics Designer crafting <span className="text-white font-medium">high-retention</span> visual experiences. 
-            Merging technical precision with cinematic storytelling.
+            {hero.description}
           </p>
         </Reveal>
 
@@ -64,7 +67,7 @@ const Hero: React.FC = () => {
               onClick={handleScrollToWork}
               className="group relative px-8 py-4 bg-white text-black rounded-full overflow-hidden flex items-center gap-3 font-semibold tracking-wide hover:scale-105 transition-transform duration-300"
             >
-              <span className="relative z-10 group-hover:text-white transition-colors duration-300">View Projects</span>
+              <span className="relative z-10 group-hover:text-white transition-colors duration-300">{hero.ctaText}</span>
               <div className="absolute inset-0 bg-accent translate-y-full group-hover:translate-y-0 transition-transform duration-300 z-0"></div>
             </a>
           </div>

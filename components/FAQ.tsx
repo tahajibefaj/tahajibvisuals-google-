@@ -2,28 +2,11 @@ import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Plus, Minus } from 'lucide-react';
 import Reveal from './Reveal';
-
-const faqs = [
-  {
-    question: "Do you guarantee results?",
-    answer: "In most cases, yes. I’ve worked with clients across different niches and consistently delivered strong results. While outcomes can depend on factors beyond editing, the quality, strategy, and effort on my end are always solid."
-  },
-  {
-    question: "How fast will I get my videos?",
-    answer: "It depends on the type and length of the video. Short-form content usually takes around 2–3 days. Longer videos, around 7–10 minutes, typically take 7–9 days. I’ll always confirm timelines before starting."
-  },
-  {
-    question: "Can I request specific video themes or styles?",
-    answer: "Absolutely. If you have a specific style, reference, or brand direction in mind, I’ll tailor the video to match it. Your vision always comes first."
-  },
-  {
-    question: "Do you offer any free revisions?",
-    answer: "Yes. I offer up to 3 revisions at no extra cost. If you need additional changes after that, there may be a small extra charge."
-  }
-];
+import { useContent } from '../context/ContentContext';
 
 const FAQ: React.FC = () => {
   const [openIndex, setOpenIndex] = useState<number | null>(null);
+  const { content } = useContent();
 
   const toggleFAQ = (index: number) => {
     setOpenIndex(openIndex === index ? null : index);
@@ -39,7 +22,7 @@ const FAQ: React.FC = () => {
         </Reveal>
 
         <div className="space-y-4">
-          {faqs.map((faq, index) => (
+          {content.faq.map((faq, index) => (
             <Reveal key={index} width="100%" delay={index * 0.1}>
               <div 
                 className={`border border-white/10 rounded-xl overflow-hidden transition-colors duration-300 ${openIndex === index ? 'bg-white/5 border-white/20' : 'bg-transparent hover:border-white/20'}`}

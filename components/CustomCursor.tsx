@@ -60,8 +60,8 @@ const CustomCursor: React.FC = () => {
           x: mousePosition.x - 16,
           y: mousePosition.y - 16,
           scale: isHovering ? 1.5 : 1,
-          borderColor: isHovering ? 'rgba(147, 51, 234, 0.5)' : 'rgba(255, 255, 255, 0.3)',
-          backgroundColor: isHovering ? 'rgba(147, 51, 234, 0.05)' : 'transparent',
+          borderColor: isHovering ? 'rgba(16, 185, 129, 0.5)' : 'rgba(255, 255, 255, 0.3)',
+          backgroundColor: isHovering ? 'rgba(16, 185, 129, 0.05)' : 'transparent',
           borderWidth: isHovering ? '0px' : '1px',
         }}
         transition={{ type: "spring", stiffness: 150, damping: 15, mass: 0.1 }}

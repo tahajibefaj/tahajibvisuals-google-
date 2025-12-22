@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Menu, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Scrollbar from 'smooth-scrollbar';
+import { useContent } from '../context/ContentContext';
 
 const navItems = [
   { label: 'Work', href: '#work' },
@@ -16,6 +17,7 @@ interface NavbarProps {
 
 const Navbar: React.FC<NavbarProps> = ({ isScrolled }) => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const { content } = useContent();
 
   // Helper to handle scrolling with smooth-scrollbar
   const handleNavClick = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
@@ -54,7 +56,7 @@ const Navbar: React.FC<NavbarProps> = ({ isScrolled }) => {
         >
           <div className="flex flex-col leading-tight">
              <span className="font-logo font-bold text-lg tracking-widest text-white group-hover:text-accent transition-colors duration-300">
-              TAHAJIB
+              {content.hero.titleLine1}
             </span>
             <span className="text-[0.6rem] tracking-[0.3em] text-neutral-400 uppercase group-hover:text-white transition-colors duration-300">
               Visuals
@@ -79,12 +81,12 @@ const Navbar: React.FC<NavbarProps> = ({ isScrolled }) => {
         {/* CTA */}
         <div className="hidden md:block flex-shrink-0">
           <a
-            href="https://cal.com/tahajib-efaj-seugbc/calltoexplore"
+            href={content.navbar.ctaLink}
             target="_blank"
             rel="noopener noreferrer"
             className="px-6 py-2.5 bg-white text-black rounded-full text-xs font-bold uppercase tracking-widest hover:bg-accent hover:text-white transition-all duration-300 block"
           >
-            Book a Call
+            {content.navbar.ctaText}
           </a>
         </div>
 
@@ -117,13 +119,13 @@ const Navbar: React.FC<NavbarProps> = ({ isScrolled }) => {
               </a>
             ))}
             <a
-              href="https://cal.com/tahajib-efaj-seugbc/calltoexplore"
+              href={content.navbar.ctaLink}
               target="_blank"
               rel="noopener noreferrer"
               onClick={() => setMobileMenuOpen(false)}
               className="mt-8 px-8 py-3 border border-accent text-accent rounded-full text-sm uppercase tracking-widest hover:bg-accent hover:text-black transition-all"
             >
-              Book a Call
+              {content.navbar.ctaText}
             </a>
           </motion.div>
         )}

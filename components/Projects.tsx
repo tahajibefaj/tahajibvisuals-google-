@@ -4,6 +4,7 @@ import Reveal from './Reveal';
 import ProjectModal from './ProjectModal';
 import { Project } from '../types';
 import { ArrowUpRight } from 'lucide-react';
+import { useContent } from '../context/ContentContext';
 
 const projects: Project[] = [
   {
@@ -42,17 +43,18 @@ const projects: Project[] = [
 
 const Projects: React.FC = () => {
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
+  const { content } = useContent();
 
   return (
     <section id="work" className="py-24 bg-surface relative">
       <div className="container mx-auto px-6">
         <div className="flex flex-col md:flex-row justify-between items-end mb-16">
           <Reveal>
-            <h2 className="text-4xl md:text-5xl font-display font-bold text-white">Selected Works</h2>
+            <h2 className="text-4xl md:text-5xl font-display font-bold text-white">{content.projects.heading}</h2>
           </Reveal>
           <Reveal delay={0.2}>
             <p className="text-neutral-400 mt-4 md:mt-0 max-w-sm text-right">
-              A curation of recent motion design and video editing projects.
+              {content.projects.subheading}
             </p>
           </Reveal>
         </div>
