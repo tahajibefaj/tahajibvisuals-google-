@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { X, Play } from 'lucide-react';
 import { Project } from '../types';
 
@@ -13,7 +13,6 @@ interface ProjectModalProps {
 const ProjectModal: React.FC<ProjectModalProps> = ({ project, isOpen, onClose }) => {
   const [isPlaying, setIsPlaying] = useState(false);
 
-  // Reset state when modal opens/closes
   useEffect(() => {
     if (isOpen) setIsPlaying(false);
   }, [isOpen]);
@@ -31,6 +30,14 @@ const ProjectModal: React.FC<ProjectModalProps> = ({ project, isOpen, onClose })
   }, [isOpen]);
 
   if (!isOpen) return null;
+
+  const getEmbedUrl = (url?: string) => {
+    const defaultUrl = "https://www.youtube.com/embed/VLjt-VX8CQI";
+    const targetUrl = url || defaultUrl;
+    // Strip existing params to ensure clean slate and correct configuration
+    const baseUrl = targetUrl.split('?')[0];
+    return `${baseUrl}?autoplay=1&rel=0&modestbranding=1&playsinline=1&controls=1&showinfo=0`;
+  };
 
   return createPortal(
     <div className="fixed inset-0 z-[100] flex items-center justify-center px-4 md:px-0">
@@ -57,15 +64,18 @@ const ProjectModal: React.FC<ProjectModalProps> = ({ project, isOpen, onClose })
           <X size={24} />
         </button>
 
-        <div className="flex flex-col lg:flex-row h-full overflow-hidden">
-          {/* Media Section */}
-          <div className="w-full lg:w-2/3 bg-black flex items-center justify-center relative lg:h-full shrink-0">
-             {/* 
-                Container strictly enforcing 16:9 aspect ratio.
-                We use 'w-full' to take up the available width of the parent (lg:w-2/3).
-                The aspect-ratio ensures the height is calculated correctly.
-             */}
-             <div className="w-full relative" style={{ aspectRatio: '16/9' }}>
+        {/* 
+           Layout Strategy:
+           Desktop: Block layout with Media taking up relative flow to define height.
+                    Text column is absolute to fill the remaining height exactly.
+           Mobile: Flex column. Media flows naturally. Text fills remaining space.
+        */}
+        <div className="flex flex-col lg:block relative w-full h-full min-h-0 overflow-hidden bg-black">
+          
+          {/* Media Section - Drives Height on Desktop */}
+          <div className="w-full lg:w-2/3 bg-black relative shrink-0">
+             {/* Strict 16:9 Aspect Ratio Container */}
+             <div className="w-full aspect-video relative bg-black">
                {!isPlaying ? (
                  <>
                    <img 
@@ -84,10 +94,9 @@ const ProjectModal: React.FC<ProjectModalProps> = ({ project, isOpen, onClose })
                  </>
                ) : (
                   <iframe 
-                    src={project.videoUrl || "https://www.youtube.com/embed/VLjt-VX8CQI?autoplay=1&rel=0&modestbranding=1"} 
+                    src={getEmbedUrl(project.videoUrl)} 
                     title={project.title}
                     className="absolute inset-0 w-full h-full"
-                    frameBorder="0" 
                     allow="autoplay; encrypted-media; picture-in-picture" 
                     allowFullScreen
                   ></iframe>
@@ -95,8 +104,8 @@ const ProjectModal: React.FC<ProjectModalProps> = ({ project, isOpen, onClose })
              </div>
           </div>
 
-          {/* Details Section */}
-          <div className="w-full lg:w-1/3 p-8 lg:p-10 flex flex-col bg-surface overflow-y-auto custom-scrollbar">
+          {/* Details Section - Adapts to Height */}
+          <div className="w-full lg:w-1/3 bg-surface flex flex-col p-8 lg:p-10 overflow-y-auto custom-scrollbar flex-1 lg:absolute lg:inset-y-0 lg:right-0 lg:h-full lg:border-l lg:border-white/5">
             <span className="text-accent text-sm tracking-widest uppercase mb-2">{project.category}</span>
             <h3 className="text-3xl font-display font-bold text-white mb-6 leading-tight">{project.title}</h3>
             
@@ -115,6 +124,7 @@ const ProjectModal: React.FC<ProjectModalProps> = ({ project, isOpen, onClose })
               </p>
             </div>
           </div>
+          
         </div>
       </motion.div>
     </div>,
