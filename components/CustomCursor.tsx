@@ -22,6 +22,10 @@ const CustomCursor: React.FC = () => {
       const isClickable = 
         target.tagName.toLowerCase() === 'a' ||
         target.tagName.toLowerCase() === 'button' ||
+        target.tagName.toLowerCase() === 'input' ||
+        target.tagName.toLowerCase() === 'textarea' ||
+        target.tagName.toLowerCase() === 'select' ||
+        target.tagName.toLowerCase() === 'label' ||
         target.closest('a') ||
         target.closest('button') ||
         target.closest('[role="button"]') ||
@@ -45,7 +49,7 @@ const CustomCursor: React.FC = () => {
     <>
       {/* Main dot */}
       <motion.div
-        className="fixed top-0 left-0 w-3 h-3 bg-accent rounded-full pointer-events-none z-[9999] mix-blend-difference"
+        className="fixed top-0 left-0 w-3 h-3 bg-accent rounded-full pointer-events-none z-[20000] mix-blend-difference"
         animate={{
           x: mousePosition.x - 6,
           y: mousePosition.y - 6,
@@ -55,7 +59,7 @@ const CustomCursor: React.FC = () => {
       />
       {/* Outer ring */}
       <motion.div
-        className="fixed top-0 left-0 w-8 h-8 border border-white/50 rounded-full pointer-events-none z-[9999]"
+        className="fixed top-0 left-0 w-8 h-8 border border-white/50 rounded-full pointer-events-none z-[20000]"
         animate={{
           x: mousePosition.x - 16,
           y: mousePosition.y - 16,

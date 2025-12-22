@@ -55,6 +55,7 @@ function App() {
   if (isAdmin) {
     return (
       <ContentProvider>
+        <CustomCursor />
         <AdminPanel />
       </ContentProvider>
     );
