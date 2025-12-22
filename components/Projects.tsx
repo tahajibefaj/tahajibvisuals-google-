@@ -8,7 +8,7 @@ import { useContent } from '../context/ContentContext';
 
 const Projects: React.FC = () => {
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
-  const { content } = useContent();
+  const { content, isLoading } = useContent();
 
   return (
     <section id="work" className="py-24 bg-surface relative">
@@ -25,37 +25,45 @@ const Projects: React.FC = () => {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          {content.projects.items.map((project, index) => (
-            <Reveal key={project.id} width="100%" delay={index * 0.1}>
-              <motion.div
-                className="group relative aspect-[4/3] overflow-hidden rounded-lg cursor-pointer cursor-hover-trigger"
-                onClick={() => setSelectedProject(project)}
-                whileHover={{ y: -5 }}
-                transition={{ type: "spring", stiffness: 300 }}
-              >
-                <img
-                  src={project.thumbnail}
-                  alt={project.title}
-                  className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110 opacity-80 group-hover:opacity-100"
-                />
-                
-                {/* Overlay */}
-                <div className="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-transparent opacity-80 md:opacity-0 md:group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-8">
-                  <div className="transform translate-y-4 group-hover:translate-y-0 transition-transform duration-300">
-                    <span className="text-accent text-xs font-bold tracking-widest uppercase mb-2 block">
-                      {project.category}
-                    </span>
-                    <div className="flex justify-between items-end">
-                      <h3 className="text-2xl font-bold text-white">{project.title}</h3>
-                      <div className="p-2 bg-white text-black rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300 delay-100">
-                         <ArrowUpRight size={20} />
+          {isLoading ? (
+            Array.from({ length: 4 }).map((_, index) => (
+              <div key={`skeleton-${index}`} className="w-full">
+                <div className="aspect-video w-full bg-white/5 rounded-lg animate-pulse border border-white/5" />
+              </div>
+            ))
+          ) : (
+            content.projects.items.map((project, index) => (
+              <Reveal key={project.id} width="100%" delay={index * 0.1}>
+                <motion.div
+                  className="group relative aspect-video overflow-hidden rounded-lg cursor-pointer cursor-hover-trigger"
+                  onClick={() => setSelectedProject(project)}
+                  whileHover={{ y: -5 }}
+                  transition={{ type: "spring", stiffness: 300 }}
+                >
+                  <img
+                    src={project.thumbnail}
+                    alt={project.title}
+                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110 opacity-80 group-hover:opacity-100"
+                  />
+                  
+                  {/* Overlay */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-transparent opacity-80 md:opacity-0 md:group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-8">
+                    <div className="transform translate-y-4 group-hover:translate-y-0 transition-transform duration-300">
+                      <span className="text-accent text-xs font-bold tracking-widest uppercase mb-2 block">
+                        {project.category}
+                      </span>
+                      <div className="flex justify-between items-end">
+                        <h3 className="text-2xl font-bold text-white">{project.title}</h3>
+                        <div className="p-2 bg-white text-black rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300 delay-100">
+                           <ArrowUpRight size={20} />
+                        </div>
                       </div>
                     </div>
                   </div>
-                </div>
-              </motion.div>
-            </Reveal>
-          ))}
+                </motion.div>
+              </Reveal>
+            ))
+          )}
         </div>
       </div>
 

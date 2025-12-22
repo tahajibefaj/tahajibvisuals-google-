@@ -28,7 +28,7 @@ const AnimatedCounter = ({ value, suffix = '' }: { value: number; suffix?: strin
 };
 
 const About: React.FC = () => {
-  const { content } = useContent();
+  const { content, isLoading } = useContent();
   const { about } = content;
 
   return (
@@ -79,18 +79,22 @@ const About: React.FC = () => {
           {/* Image/Visual */}
           <div className="w-full lg:w-1/2 relative">
              <Reveal width="100%" delay={0.3}>
-                <div className="relative aspect-[3/4] w-full max-w-md mx-auto grayscale hover:grayscale-0 transition-all duration-700 rounded-lg overflow-hidden group">
-                    <img 
-                        src={about.image} 
-                        alt="Profile" 
-                        className="w-full h-full object-cover"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-60"></div>
-                    
-                    {/* Decorative Elements */}
-                    <div className="absolute -bottom-6 -right-6 w-24 h-24 bg-accent/20 rounded-full blur-2xl"></div>
-                    <div className="absolute top-10 -left-10 w-32 h-32 border border-white/10 rounded-full opacity-50"></div>
-                </div>
+                {isLoading ? (
+                  <div className="aspect-[3/4] w-full max-w-md mx-auto bg-white/5 rounded-lg animate-pulse border border-white/10" />
+                ) : (
+                  <div className="relative aspect-[3/4] w-full max-w-md mx-auto grayscale hover:grayscale-0 transition-all duration-700 rounded-lg overflow-hidden group">
+                      <img 
+                          src={about.image} 
+                          alt="Profile" 
+                          className="w-full h-full object-cover"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-60"></div>
+                      
+                      {/* Decorative Elements */}
+                      <div className="absolute -bottom-6 -right-6 w-24 h-24 bg-accent/20 rounded-full blur-2xl"></div>
+                      <div className="absolute top-10 -left-10 w-32 h-32 border border-white/10 rounded-full opacity-50"></div>
+                  </div>
+                )}
              </Reveal>
           </div>
         </div>

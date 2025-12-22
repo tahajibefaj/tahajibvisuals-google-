@@ -35,7 +35,7 @@ const ProjectModal: React.FC<ProjectModalProps> = ({ project, isOpen, onClose })
         animate={{ y: 0, opacity: 1 }}
         exit={{ y: 100, opacity: 0 }}
         transition={{ type: "spring", damping: 25, stiffness: 200 }}
-        className="relative bg-surface w-full max-w-5xl max-h-[90vh] overflow-y-auto rounded-xl border border-white/10 shadow-2xl custom-scrollbar"
+        className="relative bg-surface w-full max-w-7xl max-h-[90vh] overflow-y-auto overflow-x-hidden rounded-xl border border-white/10 shadow-2xl custom-scrollbar"
         onClick={(e) => e.stopPropagation()} 
       >
         <button
@@ -47,36 +47,37 @@ const ProjectModal: React.FC<ProjectModalProps> = ({ project, isOpen, onClose })
 
         <div className="flex flex-col lg:flex-row h-full">
           {/* Media Section */}
-          <div className="w-full lg:w-2/3 bg-black aspect-video lg:h-auto min-h-[300px] flex items-center justify-center relative overflow-hidden">
-             
-             {!isPlaying ? (
-               <>
-                 <img 
-                   src={project.thumbnail} 
-                   alt={project.title} 
-                   className="w-full h-full object-cover opacity-80"
-                 />
-                 <div className="absolute inset-0 flex items-center justify-center">
-                     <button 
-                        onClick={() => setIsPlaying(true)}
-                        className="w-20 h-20 bg-accent/90 rounded-full flex items-center justify-center cursor-pointer hover:scale-110 transition-transform group"
-                     >
-                         <Play size={32} fill="white" className="text-white ml-1" />
-                     </button>
-                 </div>
-               </>
-             ) : (
-                <iframe 
-                  width="100%" 
-                  height="100%" 
-                  src={project.videoUrl || "https://www.youtube.com/embed/VLjt-VX8CQI?autoplay=1&rel=0&modestbranding=1"} 
-                  title="YouTube video player" 
-                  frameBorder="0" 
-                  allow="autoplay; encrypted-media; picture-in-picture" 
-                  allowFullScreen
-                  className="absolute inset-0 w-full h-full"
-                ></iframe>
-             )}
+          <div className="w-full lg:w-2/3 bg-black flex items-center justify-center relative lg:min-h-full">
+             <div className="w-full aspect-video relative">
+               {!isPlaying ? (
+                 <>
+                   <img 
+                     src={project.thumbnail} 
+                     alt={project.title} 
+                     className="w-full h-full object-cover opacity-80"
+                   />
+                   <div className="absolute inset-0 flex items-center justify-center">
+                       <button 
+                          onClick={() => setIsPlaying(true)}
+                          className="w-20 h-20 bg-accent/90 rounded-full flex items-center justify-center cursor-pointer hover:scale-110 transition-transform group"
+                       >
+                           <Play size={32} fill="white" className="text-white ml-1" />
+                       </button>
+                   </div>
+                 </>
+               ) : (
+                  <iframe 
+                    width="100%" 
+                    height="100%" 
+                    src={project.videoUrl || "https://www.youtube.com/embed/VLjt-VX8CQI?autoplay=1&rel=0&modestbranding=1"} 
+                    title="YouTube video player" 
+                    frameBorder="0" 
+                    allow="autoplay; encrypted-media; picture-in-picture" 
+                    allowFullScreen
+                    className="absolute inset-0 w-full h-full"
+                  ></iframe>
+               )}
+             </div>
           </div>
 
           {/* Details Section */}
