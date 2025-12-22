@@ -1,0 +1,71 @@
+import React from 'react';
+import { motion } from 'framer-motion';
+import { Film, MonitorPlay, Zap, Layers } from 'lucide-react';
+import Reveal from './Reveal';
+import { Service } from '../types';
+
+const services: Service[] = [
+  {
+    id: 1,
+    title: "Video Editing",
+    description: "Professional cutting, color grading, and sound design to turn raw footage into compelling narratives.",
+    icon: Film,
+  },
+  {
+    id: 2,
+    title: "Motion Graphics",
+    description: "Custom animations, kinetic typography, and visual effects that add polish and engagement.",
+    icon: Layers,
+  },
+  {
+    id: 3,
+    title: "Short-Form Content",
+    description: "High-energy edits optimized for TikTok, Reels, and Shorts to maximize retention and reach.",
+    icon: Zap,
+  },
+  {
+    id: 4,
+    title: "Brand & Social",
+    description: "Cohesive video content strategies that align with your brand identity across all platforms.",
+    icon: MonitorPlay,
+  },
+];
+
+const Services: React.FC = () => {
+  return (
+    <section id="services" className="py-24 bg-surfaceHighlight/30">
+      <div className="container mx-auto px-6">
+        <Reveal>
+          <div className="text-center mb-16">
+            <h2 className="text-sm text-accent uppercase tracking-[0.2em] mb-4">What I Do</h2>
+            <h3 className="text-3xl md:text-5xl font-display font-bold text-white">Creative Services</h3>
+          </div>
+        </Reveal>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          {services.map((service, index) => (
+            <Reveal key={service.id} delay={index * 0.1} width="100%">
+              <div className="group p-8 h-full bg-surface border border-white/5 rounded-xl hover:border-accent/50 transition-colors duration-300 relative overflow-hidden cursor-hover-trigger">
+                {/* Hover Gradient */}
+                <div className="absolute inset-0 bg-gradient-to-br from-accent/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                
+                <div className="relative z-10">
+                  <div className="w-12 h-12 bg-white/5 rounded-lg flex items-center justify-center mb-6 text-white group-hover:text-accent group-hover:scale-110 transition-all duration-300">
+                    <service.icon size={24} strokeWidth={1.5} />
+                  </div>
+                  
+                  <h4 className="text-xl font-bold text-white mb-4">{service.title}</h4>
+                  <p className="text-neutral-400 text-sm leading-relaxed group-hover:text-neutral-300 transition-colors">
+                    {service.description}
+                  </p>
+                </div>
+              </div>
+            </Reveal>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+};
+
+export default Services;

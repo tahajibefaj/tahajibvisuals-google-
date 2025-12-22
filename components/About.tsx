@@ -1,0 +1,73 @@
+import React from 'react';
+import Reveal from './Reveal';
+
+const About: React.FC = () => {
+  return (
+    <section id="about" className="py-24 bg-black overflow-hidden">
+      <div className="container mx-auto px-6">
+        <div className="flex flex-col lg:flex-row items-center gap-16">
+          
+          {/* Text Content */}
+          <div className="w-full lg:w-1/2">
+             <Reveal>
+              <h2 className="text-sm text-accent uppercase tracking-[0.2em] mb-4">About Me</h2>
+            </Reveal>
+            <Reveal>
+              <h3 className="text-3xl md:text-5xl font-display font-bold leading-tight mb-8">
+                I tell stories through <br /> <span className="text-neutral-500">motion and rhythm.</span>
+              </h3>
+            </Reveal>
+            
+            <Reveal delay={0.2}>
+              <div className="space-y-6 text-neutral-400 text-lg font-light leading-relaxed">
+                <p>
+                  I'm <strong className="text-white font-semibold">Tahajib Efaj</strong>, a dedicated video editor and motion graphics designer obsessed with the details. 
+                  My philosophy is simple: visuals should not just look good—they should feel right.
+                </p>
+                <p>
+                  Specializing in Premiere Pro and After Effects, I create clean, high-retention content that cuts through the noise. 
+                  Whether it's a fast-paced social ad or a cinematic brand documentary, I focus on pacing, sound design, 
+                  and visual hierarchy to ensure your message lands.
+                </p>
+              </div>
+            </Reveal>
+            
+            <Reveal delay={0.4}>
+                <div className="mt-10 grid grid-cols-2 gap-6">
+                    <div>
+                        <h4 className="text-white text-4xl font-bold mb-2">4+</h4>
+                        <span className="text-neutral-500 text-sm uppercase tracking-wider">Years Experience</span>
+                    </div>
+                    <div>
+                        <h4 className="text-white text-4xl font-bold mb-2">100+</h4>
+                        <span className="text-neutral-500 text-sm uppercase tracking-wider">Projects Completed</span>
+                    </div>
+                </div>
+            </Reveal>
+          </div>
+
+          {/* Image/Visual */}
+          <div className="w-full lg:w-1/2 relative">
+             <Reveal width="100%" delay={0.3}>
+                <div className="relative aspect-[3/4] w-full max-w-md mx-auto grayscale hover:grayscale-0 transition-all duration-700 rounded-lg overflow-hidden group">
+                    <img 
+                        src="https://picsum.photos/600/800?random=5" 
+                        alt="Tahajib Efaj" 
+                        className="w-full h-full object-cover"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-60"></div>
+                    
+                    {/* Decorative Elements */}
+                    <div className="absolute -bottom-6 -right-6 w-24 h-24 bg-accent/20 rounded-full blur-2xl"></div>
+                    <div className="absolute top-10 -left-10 w-32 h-32 border border-white/10 rounded-full opacity-50"></div>
+                </div>
+             </Reveal>
+          </div>
+          
+        </div>
+      </div>
+    </section>
+  );
+};
+
+export default About;
