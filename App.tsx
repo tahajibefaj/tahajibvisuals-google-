@@ -5,6 +5,7 @@ import Projects from './components/Projects';
 import About from './components/About';
 import Services from './components/Services';
 import Contact from './components/Contact';
+import FAQ from './components/FAQ';
 import Footer from './components/Footer';
 import CustomCursor from './components/CustomCursor';
 import Scrollbar from 'smooth-scrollbar';
@@ -50,6 +51,7 @@ function App() {
           <About />
           <Services />
           <Contact />
+          <FAQ />
           <Footer />
         </div>
       </div>
