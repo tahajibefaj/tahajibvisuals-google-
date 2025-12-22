@@ -35,7 +35,7 @@ const Projects: React.FC = () => {
             content.projects.items.map((project, index) => (
               <Reveal key={project.id} width="100%" delay={index * 0.1}>
                 <motion.div
-                  className="group relative aspect-video overflow-hidden rounded-lg cursor-pointer cursor-hover-trigger"
+                  className="group relative aspect-video overflow-hidden rounded-lg cursor-pointer cursor-hover-trigger border border-white/10 hover:border-accent/50 hover:shadow-[0_0_30px_rgba(16,185,129,0.15)] transition-all duration-500"
                   onClick={() => setSelectedProject(project)}
                   whileHover={{ y: -5 }}
                   transition={{ type: "spring", stiffness: 300 }}
@@ -43,7 +43,7 @@ const Projects: React.FC = () => {
                   <img
                     src={project.thumbnail}
                     alt={project.title}
-                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110 opacity-80 group-hover:opacity-100"
+                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105 opacity-80 group-hover:opacity-100"
                   />
                   
                   {/* Overlay */}

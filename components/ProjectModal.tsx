@@ -60,18 +60,23 @@ const ProjectModal: React.FC<ProjectModalProps> = ({ project, isOpen, onClose })
         <div className="flex flex-col lg:flex-row h-full overflow-hidden">
           {/* Media Section */}
           <div className="w-full lg:w-2/3 bg-black flex items-center justify-center relative lg:h-full shrink-0">
-             <div className="w-full aspect-video relative">
+             {/* 
+                Container strictly enforcing 16:9 aspect ratio.
+                We use 'w-full' to take up the available width of the parent (lg:w-2/3).
+                The aspect-ratio ensures the height is calculated correctly.
+             */}
+             <div className="w-full relative" style={{ aspectRatio: '16/9' }}>
                {!isPlaying ? (
                  <>
                    <img 
                      src={project.thumbnail} 
                      alt={project.title} 
-                     className="w-full h-full object-cover opacity-80"
+                     className="absolute inset-0 w-full h-full object-cover opacity-80"
                    />
                    <div className="absolute inset-0 flex items-center justify-center">
                        <button 
                           onClick={() => setIsPlaying(true)}
-                          className="w-20 h-20 bg-accent/90 rounded-full flex items-center justify-center cursor-pointer hover:scale-110 transition-transform group"
+                          className="w-20 h-20 bg-accent/90 rounded-full flex items-center justify-center cursor-pointer hover:scale-110 transition-transform group z-10"
                        >
                            <Play size={32} fill="white" className="text-white ml-1" />
                        </button>
@@ -79,14 +84,12 @@ const ProjectModal: React.FC<ProjectModalProps> = ({ project, isOpen, onClose })
                  </>
                ) : (
                   <iframe 
-                    width="100%" 
-                    height="100%" 
                     src={project.videoUrl || "https://www.youtube.com/embed/VLjt-VX8CQI?autoplay=1&rel=0&modestbranding=1"} 
-                    title="YouTube video player" 
+                    title={project.title}
+                    className="absolute inset-0 w-full h-full"
                     frameBorder="0" 
                     allow="autoplay; encrypted-media; picture-in-picture" 
                     allowFullScreen
-                    className="absolute inset-0 w-full h-full"
                   ></iframe>
                )}
              </div>
