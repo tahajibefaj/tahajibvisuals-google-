@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import Reveal from './Reveal';
-import { Send, Mail, CheckCircle } from 'lucide-react';
+import { Send, Mail, CheckCircle, Instagram, Facebook, Twitter, Linkedin } from 'lucide-react';
 
 const Contact: React.FC = () => {
   const [formState, setFormState] = useState({
@@ -30,13 +30,20 @@ const Contact: React.FC = () => {
     });
   };
 
+  const socialLinks = [
+    { icon: Instagram, label: "Instagram" },
+    { icon: Facebook, label: "Facebook" },
+    { icon: Twitter, label: "Twitter" },
+    { icon: Linkedin, label: "LinkedIn" },
+  ];
+
   return (
     <section id="contact" className="py-24 bg-black relative overflow-hidden">
         {/* Decorative background glow */}
         <div className="absolute bottom-0 right-0 w-[600px] h-[600px] bg-accent/5 rounded-full blur-[120px] pointer-events-none"></div>
 
       <div className="container mx-auto px-6 max-w-5xl">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-16">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 mb-24">
           
           <div>
             <Reveal>
@@ -151,6 +158,31 @@ const Contact: React.FC = () => {
             </form>
           </div>
         </div>
+
+        {/* Prominent Social Buttons */}
+        <Reveal width="100%" delay={0.4}>
+          <div className="flex flex-col items-center border-t border-white/10 pt-16">
+            <h4 className="text-neutral-500 text-sm uppercase tracking-[0.2em] mb-8">Follow My Work</h4>
+            <div className="flex flex-wrap justify-center gap-6">
+              {socialLinks.map((social) => (
+                <a 
+                  key={social.label}
+                  href="#"
+                  className="group flex items-center justify-center w-16 h-16 rounded-full border border-white/10 bg-surface hover:bg-accent hover:border-accent transition-all duration-300 relative cursor-hover-trigger"
+                  aria-label={social.label}
+                >
+                  <social.icon 
+                    size={28} 
+                    className="text-neutral-400 group-hover:text-white group-hover:scale-110 transition-transform duration-300" 
+                    strokeWidth={1.5}
+                  />
+                  {/* Glow effect on hover */}
+                  <div className="absolute inset-0 rounded-full bg-accent/20 blur-md opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                </a>
+              ))}
+            </div>
+          </div>
+        </Reveal>
       </div>
     </section>
   );
