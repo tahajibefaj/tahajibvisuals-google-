@@ -1,7 +1,7 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Play, ChevronDown, ChevronLeft, ChevronRight, Pause } from 'lucide-react';
+import { X, Play, ChevronDown, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Project } from '../types';
 import clsx from 'clsx';
 
@@ -54,13 +54,10 @@ const getToolDescription = (tool: string) => {
 const ProjectModal: React.FC<ProjectModalProps> = ({ project, isOpen, onClose, onNext, onPrev }) => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [isBreakdownOpen, setIsBreakdownOpen] = useState(false);
-  const [isPaused, setIsPaused] = useState(false);
-  const iframeRef = useRef<HTMLIFrameElement>(null);
 
   useEffect(() => {
     if (isOpen) {
         setIsPlaying(false);
-        setIsPaused(false);
         setIsBreakdownOpen(false);
     }
   }, [project.id, isOpen]);
@@ -84,38 +81,13 @@ const ProjectModal: React.FC<ProjectModalProps> = ({ project, isOpen, onClose, o
         if (e.key === 'Escape') onClose();
         if (e.key === 'ArrowRight' && onNext) onNext();
         if (e.key === 'ArrowLeft' && onPrev) onPrev();
-        
-        // Spacebar toggle
-        if (e.key === ' ' && isPlaying) {
-             e.preventDefault(); // Prevent scroll
-             toggleVideoPlay();
-        }
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [isOpen, onClose, onNext, onPrev, isPlaying, isPaused]);
-
-  // Toggle Video Play/Pause via YouTube API
-  const toggleVideoPlay = () => {
-      if (!iframeRef.current) return;
-      
-      const action = isPaused ? 'playVideo' : 'pauseVideo';
-      // Safe postMessage to YouTube iframe
-      iframeRef.current.contentWindow?.postMessage(JSON.stringify({
-          event: 'command',
-          func: action,
-          args: []
-      }), '*');
-      
-      setIsPaused(!isPaused);
-  };
+  }, [isOpen, onClose, onNext, onPrev]);
 
   if (!isOpen) return null;
 
-  /**
-   * ROBUST YOUTUBE URL PARSER
-   * Enforces autoplay, enables JS API, hides controls to allow custom cursor overlay interaction
-   */
   const getEmbedUrl = (url?: string) => {
     if (!url) return "https://www.youtube.com/embed/VLjt-VX8CQI";
     const regExp = /^.*((youtu.be\/)|(v\/)|(\/u\/\w\/)|(embed\/)|(watch\?v=)|(shorts\/))([^#&?]*).*/;
@@ -123,14 +95,11 @@ const ProjectModal: React.FC<ProjectModalProps> = ({ project, isOpen, onClose, o
     const videoId = (match && match[8].length === 11) ? match[8] : null;
 
     if (videoId) {
-         // Controls=0 hides UI so we can use overlay for clicks
-         // enablejsapi=1 allows us to pause/play via postMessage
-         return `https://www.youtube.com/embed/${videoId}?autoplay=1&enablejsapi=1&controls=0&rel=0&modestbranding=1&playsinline=1&showinfo=0&fs=0&iv_load_policy=3`;
+         return `https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0&modestbranding=1&playsinline=1&showinfo=0&fs=1`;
     }
     return url; 
   };
 
-  // Safe Breakdown Defaults
   const breakdown = project.breakdown || {
     goal: "Create a compelling visual narrative.",
     focus: "Retention and pacing.",
@@ -184,12 +153,6 @@ const ProjectModal: React.FC<ProjectModalProps> = ({ project, isOpen, onClose, o
 
         {/* LEFT COLUMN: Video Area */}
         <div className="w-full h-[40vh] lg:h-full bg-black relative flex items-center justify-center overflow-hidden order-1 lg:order-none">
-             {/* 
-                Video Container:
-                - Width 100% to fill container
-                - Aspect Ratio 16/9 enforcing strict shape
-                - Max Height constrained to prevent overflow
-             */}
              <div className="relative w-full aspect-video bg-black shadow-2xl flex items-center justify-center">
                {!isPlaying ? (
                  <>
@@ -208,38 +171,13 @@ const ProjectModal: React.FC<ProjectModalProps> = ({ project, isOpen, onClose, o
                    </div>
                  </>
                ) : (
-                 <>
-                   <iframe 
-                    ref={iframeRef}
+                 <iframe 
                     src={getEmbedUrl(project.videoUrl)} 
                     title={project.title}
                     className="absolute inset-0 w-full h-full border-none"
                     allow="autoplay; encrypted-media; picture-in-picture; fullscreen" 
                     allowFullScreen
                   ></iframe>
-                  
-                  {/* Transparent Overlay for Custom Cursor & Click-to-Pause */}
-                  <div 
-                    className="absolute inset-0 z-10 cursor-none"
-                    onClick={toggleVideoPlay}
-                  >
-                      {/* Optional: Show Play icon when paused */}
-                      <AnimatePresence>
-                        {isPaused && (
-                             <motion.div 
-                                initial={{ opacity: 0, scale: 0.8 }}
-                                animate={{ opacity: 1, scale: 1 }}
-                                exit={{ opacity: 0, scale: 0.8 }}
-                                className="absolute inset-0 flex items-center justify-center bg-black/20 backdrop-blur-[1px]"
-                             >
-                                <div className="p-6 bg-black/60 rounded-full backdrop-blur-md">
-                                    <Play size={48} fill="white" className="text-white ml-2" />
-                                </div>
-                             </motion.div>
-                        )}
-                      </AnimatePresence>
-                  </div>
-                 </>
                )}
              </div>
         </div>
