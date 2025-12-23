@@ -121,6 +121,7 @@ const ProjectModal: React.FC<ProjectModalProps> = ({ project, isOpen, onClose })
                     src={getEmbedUrl(project.videoUrl)} 
                     title={project.title}
                     className="absolute inset-0 w-full h-full border-none"
+                    style={{ cursor: 'none' }} /* Force hide cursor */
                     allow="autoplay; encrypted-media; picture-in-picture; fullscreen" 
                     allowFullScreen
                   ></iframe>

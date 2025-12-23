@@ -35,14 +35,30 @@ const Hero: React.FC = () => {
         <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 mix-blend-overlay"></div>
       </div>
 
-      <div className="container mx-auto px-6 relative z-10 text-center">
+      <div className="container mx-auto px-6 relative z-10 text-center flex flex-col items-center">
+        {/* 3) Status Text */}
+        <Reveal width="fit-content">
+          <motion.div 
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2 }}
+            className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-accent/10 border border-accent/20 mb-8 backdrop-blur-sm"
+          >
+            <div className="relative flex items-center justify-center w-2 h-2">
+                <span className="absolute inline-flex h-full w-full rounded-full bg-accent opacity-75 animate-ping"></span>
+                <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-accent"></span>
+            </div>
+            <span className="text-accent text-[10px] md:text-xs font-semibold tracking-widest uppercase">Open for New Projects</span>
+          </motion.div>
+        </Reveal>
+
         <Reveal width="100%">
           <h2 className="text-sm md:text-base text-accent tracking-[0.3em] uppercase mb-6 font-medium text-glow">
             {hero.subtitle}
           </h2>
         </Reveal>
 
-        <div className="mb-8 relative">
+        <div className="mb-8 relative w-full">
             {/* Subtle glow behind title */}
             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-2/3 h-2/3 bg-accent/20 blur-[80px] -z-10 rounded-full"></div>
             

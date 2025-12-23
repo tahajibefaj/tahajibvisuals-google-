@@ -97,12 +97,13 @@ const Contact: React.FC = () => {
             <Reveal delay={0.3}>
               <a 
                 href={isLoading ? '#' : `mailto:${contact.email}`} 
-                className="flex items-center gap-4 text-white hover:text-accent transition-colors mb-4 group w-fit"
+                className="flex items-center gap-4 text-white hover:text-accent transition-colors mb-4 group w-fit selectable"
               >
                 <div className="w-12 h-12 rounded-full bg-surface border border-white/10 flex items-center justify-center group-hover:border-accent transition-colors">
                     <Mail size={20} />
                 </div>
-                <span className="text-lg">{isLoading ? <Skeleton width={200} /> : contact.email}</span>
+                {/* 2) Selectable Email */}
+                <span className="text-lg selectable">{isLoading ? <Skeleton width={200} /> : contact.email}</span>
               </a>
             </Reveal>
           </div>
@@ -240,7 +241,7 @@ const Contact: React.FC = () => {
                   rel="noopener noreferrer"
                   className={clsx(
                     "group flex items-center justify-center w-16 h-16 rounded-full border border-white/10 bg-surface",
-                    "hover:bg-accent hover:border-accent transition-all duration-300 relative cursor-hover-trigger"
+                    "hover:bg-accent hover:border-accent transition-all duration-300 relative cursor-hover-trigger selectable"
                   )}
                   aria-label={social.label}
                 >

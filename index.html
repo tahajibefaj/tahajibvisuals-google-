@@ -49,10 +49,34 @@
         cursor: none !important; /* Hide default cursor for custom one */
         background-color: #000;
         overflow: hidden; /* Important for smooth-scrollbar */
+        
+        /* 1) Global Text Protection */
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+        user-select: none;
+        -webkit-touch-callout: none; /* Disable iOS long-press menu */
       }
 
-      a, button, [role="button"], input, select, textarea {
+      /* Allow clicking but usually hide default cursor */
+      a, button, [role="button"], select {
         cursor: none !important;
+      }
+
+      /* 2) Allow Selection ONLY for Essential Text */
+      .selectable, .selectable * {
+        -webkit-user-select: text !important;
+        -moz-user-select: text !important;
+        -ms-user-select: text !important;
+        user-select: text !important;
+        cursor: text !important; /* Optional: show text cursor */
+      }
+
+      /* Inputs must always be editable */
+      input, textarea {
+        cursor: auto !important; /* Native cursor for typing */
+        -webkit-user-select: text !important;
+        user-select: text !important;
       }
       
       .text-glow {
@@ -71,6 +95,11 @@
       .scrollbar-thumb:hover {
         background: #059669 !important; /* accentHover */
         opacity: 1;
+      }
+
+      /* 4) Custom Cursor Fix for Video/Iframes */
+      iframe {
+        cursor: none !important; /* Attempt to hide native cursor over iframes */
       }
     </style>
   <script type="importmap">
