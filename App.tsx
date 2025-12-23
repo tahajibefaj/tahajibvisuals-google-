@@ -8,6 +8,7 @@ import Contact from './components/Contact';
 import FAQ from './components/FAQ';
 import Footer from './components/Footer';
 import CustomCursor from './components/CustomCursor';
+import ContextMenu from './components/ContextMenu';
 import { ContentProvider } from './context/ContentContext';
 import { SkeletonTheme } from 'react-loading-skeleton';
 import Scrollbar from 'smooth-scrollbar';
@@ -49,6 +50,7 @@ function App() {
       <SkeletonTheme baseColor="#202020" highlightColor="#444">
         <div className="bg-background h-screen w-full flex flex-col text-white selection:bg-accent selection:text-black">
           <CustomCursor />
+          <ContextMenu />
           <Navbar isScrolled={isScrolled} />
           
           {/* Scroll Container */}

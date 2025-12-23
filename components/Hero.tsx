@@ -22,7 +22,11 @@ const Hero: React.FC = () => {
   };
 
   return (
-    <section id="home" className="relative min-h-screen flex items-center justify-center overflow-hidden pt-20">
+    <section 
+      id="home" 
+      className="relative min-h-screen flex items-center justify-center overflow-hidden pt-20"
+      data-context="hero"
+    >
       {/* Background Ambience - Intensified */}
       <div className="absolute top-0 left-0 w-full h-full z-0 pointer-events-none">
         {/* Main top-left glow */}

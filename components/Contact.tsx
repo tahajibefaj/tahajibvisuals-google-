@@ -74,7 +74,11 @@ const Contact: React.FC = () => {
   ];
 
   return (
-    <section id="contact" className="py-24 bg-black relative overflow-hidden">
+    <section 
+      id="contact" 
+      className="py-24 bg-black relative overflow-hidden"
+      data-context="contact"
+    >
         {/* Decorative background glow */}
         <div className="absolute bottom-0 right-0 w-[600px] h-[600px] bg-accent/5 rounded-full blur-[120px] pointer-events-none"></div>
 

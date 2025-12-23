@@ -45,6 +45,7 @@ const Projects: React.FC = () => {
                     "hover:shadow-[0_0_30px_rgba(16,185,129,0.15)] transition-all duration-500"
                   )}
                   onClick={() => setSelectedProject(project)}
+                  data-context="project"
                   whileHover={{ y: -5 }}
                   transition={{ type: "spring", stiffness: 300 }}
                 >

@@ -77,9 +77,9 @@ const CustomCursor: React.FC = () => {
         }
       `}</style>
 
-      {/* Main Dot - Always stays on top */}
+      {/* Main Dot - Always stays on top - Z-Index 11001 */}
       <motion.div
-        className="fixed top-0 left-0 bg-accent rounded-full pointer-events-none z-[9999] mix-blend-difference"
+        className="fixed top-0 left-0 bg-accent rounded-full pointer-events-none z-[11001] mix-blend-difference"
         style={{
           x: cursorXSpring,
           y: cursorYSpring,
@@ -93,9 +93,9 @@ const CustomCursor: React.FC = () => {
         transition={{ type: "tween", ease: "backOut", duration: 0.2 }}
       />
       
-      {/* Outer Ring - Disappears into the dot on hover */}
+      {/* Outer Ring - Disappears into the dot on hover - Z-Index 11000 */}
       <motion.div
-        className="fixed top-0 left-0 border border-white/50 rounded-full pointer-events-none z-[9998]"
+        className="fixed top-0 left-0 border border-white/50 rounded-full pointer-events-none z-[11000]"
         style={{
           x: cursorXSpring,
           y: cursorYSpring,
