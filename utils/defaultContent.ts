@@ -23,7 +23,12 @@ export const defaultContent: SiteContent = {
         thumbnail: "https://images.unsplash.com/photo-1535242208474-9a2793260ca8?auto=format&fit=crop&w=800&q=80",
         videoUrl: "https://www.youtube.com/embed/VLjt-VX8CQI?autoplay=1&rel=0&modestbranding=1",
         description: "A high-energy futuristic advertisement featuring neon aesthetics and glitch effects created in After Effects.",
-        tools: ["After Effects", "Blender", "Premiere Pro"]
+        tools: ["After Effects", "Blender", "Premiere Pro"],
+        breakdown: {
+          goal: "Showcase futuristic product features",
+          focus: "High-energy glitch transitions",
+          result: "Increased click-through rate by 25%"
+        }
       },
       {
         id: 2,
@@ -32,7 +37,12 @@ export const defaultContent: SiteContent = {
         thumbnail: "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=800&q=80",
         videoUrl: "https://www.youtube.com/embed/ScMzIvxBSi4?autoplay=1&rel=0&modestbranding=1", 
         description: "Clean, corporate storytelling for a tech startup launch. Focus on pacing and sound design.",
-        tools: ["Premiere Pro", "DaVinci Resolve"]
+        tools: ["Premiere Pro", "DaVinci Resolve"],
+        breakdown: {
+          goal: "Establish brand trust",
+          focus: "Audio mixing & pacing",
+          result: "Professional brand image"
+        }
       },
       {
         id: 3,
@@ -41,7 +51,12 @@ export const defaultContent: SiteContent = {
         thumbnail: "https://images.unsplash.com/photo-1523381210434-271e8be1f52b?auto=format&fit=crop&w=800&q=80",
         videoUrl: "https://www.youtube.com/embed/tVdmQ34_w0c?autoplay=1&rel=0&modestbranding=1",
         description: "Fast-cut Instagram reel for a streetwear brand. Vertical format optimization and trendy transitions.",
-        tools: ["Premiere Pro", "CapCut"]
+        tools: ["Premiere Pro", "CapCut"],
+        breakdown: {
+          goal: "Maximize viewer retention",
+          focus: "Beat-sync editing",
+          result: "Viral engagement metrics"
+        }
       },
       {
         id: 4,
@@ -50,7 +65,12 @@ export const defaultContent: SiteContent = {
         thumbnail: "https://images.unsplash.com/photo-1550745165-9bc0b252726f?auto=format&fit=crop&w=800&q=80",
         videoUrl: "https://www.youtube.com/embed/z4sK6t3yA4I?autoplay=1&rel=0&modestbranding=1",
         description: "Lyric video demonstrating advanced kinetic typography techniques and syncopated motion.",
-        tools: ["After Effects"]
+        tools: ["After Effects"],
+        breakdown: {
+          goal: "Visualise complex lyrics",
+          focus: "Typography animation",
+          result: "Immersive audio-visual sync"
+        }
       },
     ]
   },

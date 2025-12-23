@@ -1,13 +1,19 @@
 import React, { useEffect, useState } from 'react';
-import { motion, useMotionValue, useSpring } from 'framer-motion';
+import { motion, useMotionValue, useSpring, useReducedMotion } from 'framer-motion';
 
 const CustomCursor: React.FC = () => {
+  const shouldReduceMotion = useReducedMotion();
+
   // Use MotionValues for high-performance updates
   const cursorX = useMotionValue(-100);
   const cursorY = useMotionValue(-100);
   
   // Smooth spring physics configuration
-  const springConfig = { damping: 25, stiffness: 400, mass: 0.4 };
+  // If reduced motion is on, we make it snappy to avoid motion sickness
+  const springConfig = shouldReduceMotion 
+    ? { damping: 50, stiffness: 1000, mass: 0.1 } 
+    : { damping: 25, stiffness: 400, mass: 0.4 };
+    
   const cursorXSpring = useSpring(cursorX, springConfig);
   const cursorYSpring = useSpring(cursorY, springConfig);
 
@@ -15,6 +21,10 @@ const CustomCursor: React.FC = () => {
   const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
+    // If reduced motion, we can arguably disable the custom cursor entirey 
+    // but the requirement says "Disable or soften". 
+    // We will keep it but make it very rigid (softened animation).
+
     // Unified handler for Mouse and Touch events
     const moveCursor = (e: MouseEvent | TouchEvent) => {
       let clientX, clientY;
@@ -94,21 +104,24 @@ const CustomCursor: React.FC = () => {
       />
       
       {/* Outer Ring - Disappears into the dot on hover - Z-Index 11000 */}
-      <motion.div
-        className="fixed top-0 left-0 border border-white/50 rounded-full pointer-events-none z-[11000]"
-        style={{
-          x: cursorXSpring,
-          y: cursorYSpring,
-          translateX: '-50%',
-          translateY: '-50%',
-        }}
-        animate={{
-          width: isHovering ? 0 : 40,
-          height: isHovering ? 0 : 40,
-          opacity: isHovering ? 0 : 1,
-        }}
-        transition={{ type: "tween", ease: "backOut", duration: 0.2 }}
-      />
+      {/* If reduced motion, hide the laggy ring entirely for simplicity and comfort */}
+      {!shouldReduceMotion && (
+        <motion.div
+            className="fixed top-0 left-0 border border-white/50 rounded-full pointer-events-none z-[11000]"
+            style={{
+            x: cursorXSpring,
+            y: cursorYSpring,
+            translateX: '-50%',
+            translateY: '-50%',
+            }}
+            animate={{
+            width: isHovering ? 0 : 40,
+            height: isHovering ? 0 : 40,
+            opacity: isHovering ? 0 : 1,
+            }}
+            transition={{ type: "tween", ease: "backOut", duration: 0.2 }}
+        />
+      )}
     </>
   );
 };

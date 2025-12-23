@@ -75,6 +75,15 @@ const About: React.FC = () => {
                     </div>
                 </div>
             </Reveal>
+            
+            {/* Trust Line */}
+            <Reveal delay={0.5}>
+                <div className="mt-8 pt-8 border-t border-white/10">
+                    <p className="text-neutral-500 text-sm font-medium tracking-wide">
+                        Trusted by creators, brands, and agencies worldwide.
+                    </p>
+                </div>
+            </Reveal>
           </div>
 
           {/* Image/Visual */}

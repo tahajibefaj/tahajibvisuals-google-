@@ -1,21 +1,66 @@
 import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
-import { motion } from 'framer-motion';
-import { X, Play } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { X, Play, ChevronDown, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Project } from '../types';
+import clsx from 'clsx';
 
 interface ProjectModalProps {
   project: Project;
   isOpen: boolean;
   onClose: () => void;
+  onNext?: () => void;
+  onPrev?: () => void;
 }
 
-const ProjectModal: React.FC<ProjectModalProps> = ({ project, isOpen, onClose }) => {
+const Tooltip: React.FC<{ text: string; children: React.ReactNode }> = ({ text, children }) => {
+  const [show, setShow] = useState(false);
+  return (
+    <div 
+      className="relative inline-block"
+      onMouseEnter={() => setShow(true)}
+      onMouseLeave={() => setShow(false)}
+    >
+      {children}
+      <AnimatePresence>
+        {show && (
+          <motion.div
+            initial={{ opacity: 0, y: 5 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 5 }}
+            className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 bg-black border border-white/20 text-white text-[10px] rounded whitespace-nowrap z-50 pointer-events-none"
+          >
+            {text}
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+};
+
+const getToolDescription = (tool: string) => {
+    const map: Record<string, string> = {
+        "After Effects": "Visual effects & Motion Graphics",
+        "Premiere Pro": "Professional Video Editing",
+        "DaVinci Resolve": "Color Grading & Editing",
+        "Blender": "3D Modeling & Animation",
+        "CapCut": "Short-form Social Editing",
+        "Photoshop": "Image Composition",
+        "Illustrator": "Vector Graphics"
+    };
+    return map[tool] || "Creative Software";
+};
+
+const ProjectModal: React.FC<ProjectModalProps> = ({ project, isOpen, onClose, onNext, onPrev }) => {
   const [isPlaying, setIsPlaying] = useState(false);
+  const [isBreakdownOpen, setIsBreakdownOpen] = useState(false);
 
   useEffect(() => {
-    if (isOpen) setIsPlaying(false);
-  }, [isOpen]);
+    if (isOpen) {
+        setIsPlaying(false);
+        setIsBreakdownOpen(false);
+    }
+  }, [project.id, isOpen]);
 
   // Lock body scroll when modal is open
   useEffect(() => {
@@ -29,20 +74,25 @@ const ProjectModal: React.FC<ProjectModalProps> = ({ project, isOpen, onClose })
     };
   }, [isOpen]);
 
+  // Keyboard Shortcuts
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+        if (!isOpen) return;
+        if (e.key === 'Escape') onClose();
+        if (e.key === 'ArrowRight' && onNext) onNext();
+        if (e.key === 'ArrowLeft' && onPrev) onPrev();
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isOpen, onClose, onNext, onPrev]);
+
   if (!isOpen) return null;
 
   /**
    * ROBUST YOUTUBE URL PARSER
-   * Converts Watch, Shorts, and Short-links to Embed format.
    */
   const getEmbedUrl = (url?: string) => {
     if (!url) return "https://www.youtube.com/embed/VLjt-VX8CQI";
-    
-    // Regex to capture the video ID from:
-    // 1. youtube.com/watch?v=ID
-    // 2. youtube.com/embed/ID
-    // 3. youtube.com/shorts/ID
-    // 4. youtu.be/ID
     const regExp = /^.*((youtu.be\/)|(v\/)|(\/u\/\w\/)|(embed\/)|(watch\?v=)|(shorts\/))([^#&?]*).*/;
     const match = url.match(regExp);
     const videoId = (match && match[8].length === 11) ? match[8] : null;
@@ -50,9 +100,14 @@ const ProjectModal: React.FC<ProjectModalProps> = ({ project, isOpen, onClose })
     if (videoId) {
          return `https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0&modestbranding=1&playsinline=1&controls=1&showinfo=0&fs=1`;
     }
-    
-    // Fallback: Return original if it looks like an embed, or default
     return url.includes('embed') ? url : "https://www.youtube.com/embed/VLjt-VX8CQI"; 
+  };
+
+  // Safe Breakdown Defaults
+  const breakdown = project.breakdown || {
+    goal: "Create a compelling visual narrative.",
+    focus: "Retention and pacing.",
+    result: "High engagement and clarity."
   };
 
   return createPortal(
@@ -86,19 +141,22 @@ const ProjectModal: React.FC<ProjectModalProps> = ({ project, isOpen, onClose })
           <X size={24} />
         </button>
 
-        {/* 
-           LEFT COLUMN: Video Area
-           - Flexbox centers content.
-           - Overflow hidden prevents sliders.
-        */}
+        {/* Navigation Arrows (Desktop) */}
+        <button 
+            onClick={onPrev}
+            className="hidden lg:flex absolute left-4 top-1/2 -translate-y-1/2 z-50 p-3 bg-black/50 rounded-full hover:bg-white hover:text-black transition-all"
+        >
+            <ChevronLeft size={24} />
+        </button>
+        <button 
+            onClick={onNext}
+            className="hidden lg:flex absolute right-[440px] top-1/2 -translate-y-1/2 z-50 p-3 bg-black/50 rounded-full hover:bg-white hover:text-black transition-all"
+        >
+            <ChevronRight size={24} />
+        </button>
+
+        {/* LEFT COLUMN: Video Area */}
         <div className="w-full h-[40vh] lg:h-full bg-black relative flex items-center justify-center overflow-hidden order-1 lg:order-none">
-             
-             {/* 
-                VIDEO WRAPPER (16:9 ENFORCED)
-                - 'w-full aspect-video' enforces ratio based on width.
-                - 'max-h-full' ensures it fits vertically if container is short.
-                - 'relative' allows absolute positioning of iframe.
-             */}
              <div className="relative w-full aspect-video max-h-full mx-auto bg-black shadow-2xl">
                {!isPlaying ? (
                  <>
@@ -121,7 +179,7 @@ const ProjectModal: React.FC<ProjectModalProps> = ({ project, isOpen, onClose })
                     src={getEmbedUrl(project.videoUrl)} 
                     title={project.title}
                     className="absolute inset-0 w-full h-full border-none"
-                    style={{ cursor: 'none' }} /* Force hide cursor */
+                    style={{ cursor: 'none' }}
                     allow="autoplay; encrypted-media; picture-in-picture; fullscreen" 
                     allowFullScreen
                   ></iframe>
@@ -129,11 +187,7 @@ const ProjectModal: React.FC<ProjectModalProps> = ({ project, isOpen, onClose })
              </div>
         </div>
 
-        {/* 
-           RIGHT COLUMN: Text Content
-           - Only THIS column scrolls vertically.
-           - No horizontal scroll.
-        */}
+        {/* RIGHT COLUMN: Text Content */}
         <div className="w-full h-full bg-surface flex flex-col overflow-y-auto overflow-x-hidden custom-scrollbar border-t lg:border-t-0 lg:border-l lg:border-white/5 relative z-10 order-2 lg:order-none">
             <div className="p-8 lg:p-10 lg:pt-16">
                 <span className="text-accent text-sm tracking-widest uppercase mb-2 block">{project.category}</span>
@@ -141,18 +195,51 @@ const ProjectModal: React.FC<ProjectModalProps> = ({ project, isOpen, onClose })
                 
                 <div className="flex flex-wrap gap-2 mb-8">
                 {project.tools.map((tool) => (
-                    <span key={tool} className="px-3 py-1 bg-white/5 border border-white/10 rounded-full text-xs text-neutral-300">
-                    {tool}
-                    </span>
+                    <Tooltip key={tool} text={getToolDescription(tool)}>
+                        <span className="px-3 py-1 bg-white/5 border border-white/10 rounded-full text-xs text-neutral-300 hover:border-white/40 transition-colors cursor-help">
+                        {tool}
+                        </span>
+                    </Tooltip>
                 ))}
                 </div>
 
                 <div className="space-y-6 text-neutral-400 leading-relaxed">
-                <p>{project.description}</p>
-                {/* Static description for layout retention */}
-                <p>
-                    This project focuses on visual retention, using fast-paced editing techniques combined with smooth motion graphics to keep viewer engagement high throughout the entire duration.
-                </p>
+                    <p>{project.description}</p>
+                    {/* Micro Project Breakdown Toggle */}
+                    <div className="border border-white/5 rounded-lg overflow-hidden bg-black/20 mt-6">
+                        <button 
+                            onClick={() => setIsBreakdownOpen(!isBreakdownOpen)}
+                            className="w-full flex items-center justify-between p-4 text-xs uppercase tracking-widest font-semibold text-neutral-300 hover:text-white transition-colors"
+                        >
+                            <span>Project Breakdown</span>
+                            <ChevronDown size={16} className={clsx("transition-transform duration-300", isBreakdownOpen && "rotate-180")} />
+                        </button>
+                        <AnimatePresence>
+                            {isBreakdownOpen && (
+                                <motion.div
+                                    initial={{ height: 0, opacity: 0 }}
+                                    animate={{ height: "auto", opacity: 1 }}
+                                    exit={{ height: 0, opacity: 0 }}
+                                    className="px-4 pb-4"
+                                >
+                                    <ul className="space-y-3 pt-2 border-t border-white/5">
+                                        <li className="flex flex-col gap-1">
+                                            <span className="text-accent text-[10px] uppercase tracking-wider">Goal</span>
+                                            <span className="text-sm text-white">{breakdown.goal}</span>
+                                        </li>
+                                        <li className="flex flex-col gap-1">
+                                            <span className="text-accent text-[10px] uppercase tracking-wider">Editing Focus</span>
+                                            <span className="text-sm text-white">{breakdown.focus}</span>
+                                        </li>
+                                        <li className="flex flex-col gap-1">
+                                            <span className="text-accent text-[10px] uppercase tracking-wider">Result</span>
+                                            <span className="text-sm text-white">{breakdown.result}</span>
+                                        </li>
+                                    </ul>
+                                </motion.div>
+                            )}
+                        </AnimatePresence>
+                    </div>
                 </div>
             </div>
         </div>

@@ -40,7 +40,7 @@ const Hero: React.FC = () => {
       </div>
 
       <div className="container mx-auto px-6 relative z-10 text-center flex flex-col items-center">
-        {/* 3) Status Text */}
+        {/* 3) Availability Indicator */}
         <Reveal width="fit-content">
           <motion.div 
             initial={{ opacity: 0, y: -10 }}
@@ -52,7 +52,7 @@ const Hero: React.FC = () => {
                 <span className="absolute inline-flex h-full w-full rounded-full bg-accent opacity-75 animate-ping"></span>
                 <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-accent"></span>
             </div>
-            <span className="text-accent text-[10px] md:text-xs font-semibold tracking-widest uppercase">Open for New Projects</span>
+            <span className="text-accent text-[10px] md:text-xs font-semibold tracking-widest uppercase">Currently Available</span>
           </motion.div>
         </Reveal>
 

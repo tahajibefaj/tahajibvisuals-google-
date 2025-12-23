@@ -8,6 +8,11 @@ export interface Project {
   videoUrl?: string; // For embed
   description: string;
   tools: string[];
+  breakdown?: {
+    goal: string;
+    focus: string;
+    result: string;
+  };
 }
 
 export interface Service {

@@ -9,8 +9,21 @@ import Skeleton from 'react-loading-skeleton';
 import clsx from 'clsx';
 
 const Projects: React.FC = () => {
-  const [selectedProject, setSelectedProject] = useState<Project | null>(null);
+  const [selectedProjectIndex, setSelectedProjectIndex] = useState<number | null>(null);
   const { content, isLoading } = useContent();
+  const projects = content.projects.items;
+
+  const handleNext = () => {
+    if (selectedProjectIndex === null) return;
+    const nextIndex = (selectedProjectIndex + 1) % projects.length;
+    setSelectedProjectIndex(nextIndex);
+  };
+
+  const handlePrev = () => {
+    if (selectedProjectIndex === null) return;
+    const prevIndex = (selectedProjectIndex - 1 + projects.length) % projects.length;
+    setSelectedProjectIndex(prevIndex);
+  };
 
   return (
     <section id="work" className="py-24 bg-surface relative">
@@ -36,7 +49,7 @@ const Projects: React.FC = () => {
               </div>
             ))
           ) : (
-            content.projects.items.map((project, index) => (
+            projects.map((project, index) => (
               <Reveal key={project.id} width="100%" delay={index * 0.1}>
                 <motion.div
                   className={clsx(
@@ -44,7 +57,7 @@ const Projects: React.FC = () => {
                     "border border-white/10 hover:border-accent/50",
                     "hover:shadow-[0_0_30px_rgba(16,185,129,0.15)] transition-all duration-500"
                   )}
-                  onClick={() => setSelectedProject(project)}
+                  onClick={() => setSelectedProjectIndex(index)}
                   data-context="project"
                   whileHover={{ y: -5 }}
                   transition={{ type: "spring", stiffness: 300 }}
@@ -77,11 +90,13 @@ const Projects: React.FC = () => {
       </div>
 
       <AnimatePresence>
-        {selectedProject && (
+        {selectedProjectIndex !== null && (
           <ProjectModal
-            project={selectedProject}
-            isOpen={!!selectedProject}
-            onClose={() => setSelectedProject(null)}
+            project={projects[selectedProjectIndex]}
+            isOpen={selectedProjectIndex !== null}
+            onClose={() => setSelectedProjectIndex(null)}
+            onNext={handleNext}
+            onPrev={handlePrev}
           />
         )}
       </AnimatePresence>

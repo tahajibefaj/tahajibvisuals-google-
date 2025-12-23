@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { motion, useAnimation } from 'framer-motion';
+import { motion, useAnimation, useReducedMotion } from 'framer-motion';
 import { useInView } from 'react-intersection-observer';
 
 interface RevealProps {
@@ -10,6 +10,8 @@ interface RevealProps {
 
 export const Reveal: React.FC<RevealProps> = ({ children, width = "fit-content", delay = 0.25 }) => {
   const mainControls = useAnimation();
+  const shouldReduceMotion = useReducedMotion();
+  
   const { ref, inView } = useInView({
     triggerOnce: true,
     threshold: 0.1,
@@ -22,13 +24,21 @@ export const Reveal: React.FC<RevealProps> = ({ children, width = "fit-content",
     }
   }, [inView, mainControls]);
 
+  // Reduced motion variant
+  const variants = shouldReduceMotion 
+    ? {
+        hidden: { opacity: 0 },
+        visible: { opacity: 1 },
+      }
+    : {
+        hidden: { opacity: 0, y: 75 },
+        visible: { opacity: 1, y: 0 },
+      };
+
   return (
     <div ref={ref} style={{ position: "relative", width, overflow: "hidden" }}>
       <motion.div
-        variants={{
-          hidden: { opacity: 0, y: 75 },
-          visible: { opacity: 1, y: 0 },
-        }}
+        variants={variants}
         initial="hidden"
         animate={mainControls}
         transition={{ duration: 0.8, delay: delay, ease: [0.25, 0.25, 0.25, 0.75] }}

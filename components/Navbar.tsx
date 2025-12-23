@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Menu, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useContent } from '../context/ContentContext';
@@ -13,30 +13,70 @@ const navItems = [
 
 interface NavbarProps {
   isScrolled: boolean;
+  scrollbar?: any; // Received from App.tsx
 }
 
-const Navbar: React.FC<NavbarProps> = ({ isScrolled }) => {
+const Navbar: React.FC<NavbarProps> = ({ isScrolled, scrollbar }) => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [ctaLabel, setCtaLabel] = useState("");
   const { content } = useContent();
+
+  // Smart CTA Text Logic
+  useEffect(() => {
+    // Set initial
+    setCtaLabel(content.navbar.ctaText);
+
+    if (!scrollbar) return;
+
+    const handleScroll = ({ offset }: { offset: { y: number } }) => {
+        const projects = document.getElementById('work');
+        const about = document.getElementById('about');
+        const contact = document.getElementById('contact');
+        const scrollY = offset.y;
+        
+        // Logic: Button always links to booking/contact, so text must persuade action
+        let newLabel = content.navbar.ctaText; // Default "Book a Call"
+
+        // Adjust offsets to trigger slightly before the section hits top
+        if (contact && scrollY >= contact.offsetTop - 500) {
+            newLabel = "Book a Call"; // Ready to close
+        } else if (about && scrollY >= about.offsetTop - 300) {
+            newLabel = "Let's Talk"; // Building relationship
+        } else if (projects && scrollY >= projects.offsetTop - 300) {
+            newLabel = "Start Project"; // Inspired by work
+        } else {
+             newLabel = "Book a Call"; // Hero default
+        }
+        
+        setCtaLabel(newLabel);
+    };
+
+    // Attach listener to the passed scrollbar instance
+    scrollbar.addListener(handleScroll);
+
+    // Run once to set initial state correctly if we started scrolled down
+    handleScroll({ offset: { y: scrollbar.offset.y } });
+
+    return () => {
+        scrollbar.removeListener(handleScroll);
+    };
+  }, [content.navbar.ctaText, scrollbar]);
+
 
   const handleNavClick = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
     e.preventDefault();
     const targetId = href.replace('#', '');
     const element = document.getElementById(targetId);
     
-    // Check for custom scrollbar instance
-    const scrollbar = (window as any).scrollbar;
-
     if (element) {
       if (scrollbar) {
-        // Use smooth-scrollbar to scroll
         scrollbar.scrollIntoView(element, {
           offsetTop: 0,
           offsetLeft: 0,
           alignToTop: true,
         });
       } else {
-        // Fallback to native smooth scroll
+        // Fallback
         element.scrollIntoView({ behavior: 'smooth' });
       }
     }
@@ -89,9 +129,20 @@ const Navbar: React.FC<NavbarProps> = ({ isScrolled }) => {
             href={content.navbar.ctaLink}
             target="_blank"
             rel="noopener noreferrer"
-            className="px-6 py-2.5 bg-white text-black rounded-full text-xs font-bold uppercase tracking-widest hover:bg-accent hover:text-white transition-all duration-300 block"
+            className="px-6 py-2.5 bg-white text-black rounded-full text-xs font-bold uppercase tracking-widest hover:bg-accent hover:text-white transition-all duration-300 block min-w-[140px] text-center"
           >
-            {content.navbar.ctaText}
+            <AnimatePresence mode="wait">
+              <motion.span
+                key={ctaLabel} // Triggers animation when text changes
+                initial={{ opacity: 0, y: 5 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -5 }}
+                transition={{ duration: 0.2 }}
+                className="block"
+              >
+                {ctaLabel || content.navbar.ctaText}
+              </motion.span>
+            </AnimatePresence>
           </a>
         </div>
 

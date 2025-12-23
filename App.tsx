@@ -15,31 +15,34 @@ import Scrollbar from 'smooth-scrollbar';
 
 function App() {
   const [isScrolled, setIsScrolled] = useState(false);
+  const [scrollbar, setScrollbar] = useState<any>(null);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    let scrollbar: any;
+    let sb: any;
 
     if (scrollContainerRef.current) {
       // Initialize smooth-scrollbar
-      scrollbar = Scrollbar.init(scrollContainerRef.current, {
+      sb = Scrollbar.init(scrollContainerRef.current, {
         damping: 0.07, // Adjust momentum: lower is smoother/heavier
         renderByPixels: true,
         // Removed delegateTo: document to ensure modals can capture their own scroll events
       });
+      
+      setScrollbar(sb);
 
       // Sync Navbar state based on scroll offset
-      scrollbar.addListener(({ offset }: { offset: { y: number } }) => {
+      sb.addListener(({ offset }: { offset: { y: number } }) => {
         setIsScrolled(offset.y > 50);
       });
 
       // Expose scrollbar instance globally for navigation logic
-      (window as any).scrollbar = scrollbar;
+      (window as any).scrollbar = sb;
     }
 
     return () => {
-      if (scrollbar) {
-        scrollbar.destroy();
+      if (sb) {
+        sb.destroy();
         (window as any).scrollbar = undefined;
       }
     };
@@ -51,7 +54,7 @@ function App() {
         <div className="bg-background h-screen w-full flex flex-col text-white selection:bg-accent selection:text-black">
           <CustomCursor />
           <ContextMenu />
-          <Navbar isScrolled={isScrolled} />
+          <Navbar isScrolled={isScrolled} scrollbar={scrollbar} />
           
           {/* Scroll Container */}
           <div ref={scrollContainerRef} className="flex-1 w-full h-full overflow-hidden">
