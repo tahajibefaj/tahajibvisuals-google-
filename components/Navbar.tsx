@@ -129,7 +129,7 @@ const Navbar: React.FC<NavbarProps> = ({ isScrolled, scrollbar }) => {
             href={content.navbar.ctaLink}
             target="_blank"
             rel="noopener noreferrer"
-            className="px-6 py-2.5 bg-white text-black rounded-full text-xs font-bold uppercase tracking-widest hover:bg-accent hover:text-white transition-all duration-300 block min-w-[140px] text-center"
+            className="px-6 py-2.5 bg-white text-black rounded-full text-xs font-bold uppercase tracking-widest hover:bg-accent hover:text-white transition-all duration-300 block w-[160px] text-center whitespace-nowrap"
           >
             <AnimatePresence mode="wait">
               <motion.span
