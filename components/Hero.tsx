@@ -1,11 +1,34 @@
-import React from 'react';
-import { motion } from 'framer-motion';
+import React, { useEffect } from 'react';
+import { motion, useMotionValue, useSpring } from 'framer-motion';
 import Reveal from './Reveal';
 import { useContent } from '../context/ContentContext';
 
 const Hero: React.FC = () => {
   const { content } = useContent();
   const { hero } = content;
+
+  // Mouse Follower Logic for Hero Background
+  // Initialize to center screen so it looks good before interaction
+  // Subtract 400 (half of 800px width) to center the blob
+  const mouseX = useMotionValue(typeof window !== 'undefined' ? (window.innerWidth / 2) - 400 : 0);
+  const mouseY = useMotionValue(typeof window !== 'undefined' ? (window.innerHeight / 2) - 400 : 0);
+
+  // Smooth spring physics for "easy to load" performance feel
+  const springConfig = { damping: 50, stiffness: 400, mass: 0.5 }; // Snappy but smooth
+  const x = useSpring(mouseX, springConfig);
+  const y = useSpring(mouseY, springConfig);
+
+  useEffect(() => {
+    const handleMouseMove = (e: MouseEvent) => {
+      // Use pageX/Y to ensure it tracks correctly relative to the document/hero container
+      // Subtract 400px (half of the 800px width/height) to center the gradient on the cursor
+      mouseX.set(e.pageX - 400);
+      mouseY.set(e.pageY - 400);
+    };
+
+    window.addEventListener('mousemove', handleMouseMove);
+    return () => window.removeEventListener('mousemove', handleMouseMove);
+  }, [mouseX, mouseY]);
 
   const handleScrollToWork = (e: React.MouseEvent<HTMLAnchorElement>) => {
     e.preventDefault();
@@ -27,14 +50,17 @@ const Hero: React.FC = () => {
       className="relative min-h-screen flex items-center justify-center overflow-hidden pt-20"
       data-context="hero"
     >
-      {/* Background Ambience - Intensified */}
+      {/* Background Ambience - Responsive Mouse Follower */}
       <div className="absolute top-0 left-0 w-full h-full z-0 pointer-events-none">
-        {/* Main top-left glow */}
-        <div className="absolute -top-[20%] -left-[10%] w-[900px] h-[900px] bg-accent/25 rounded-full blur-[150px] animate-pulse"></div>
-        {/* Bottom right glow - changed from emerald-900 to accent/20 for purer green */}
-        <div className="absolute bottom-[-10%] right-[-10%] w-[800px] h-[800px] bg-accent/20 rounded-full blur-[130px]"></div>
-        {/* Center ambient glow */}
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[1200px] h-[800px] bg-accent/15 rounded-full blur-[120px]"></div>
+        {/* Dynamic Mouse Follower Glow */}
+        <motion.div 
+            style={{ x, y }}
+            className="absolute top-0 left-0 w-[800px] h-[800px] bg-accent/25 rounded-full blur-[120px] animate-pulse will-change-transform"
+        />
+
+        {/* Static Anchor Glow (Bottom Right) - Reduced intensity to let mouse glow shine */}
+        <div className="absolute bottom-[-10%] right-[-10%] w-[600px] h-[600px] bg-accent/10 rounded-full blur-[130px]"></div>
+        
         {/* Noise overlay */}
         <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 mix-blend-overlay"></div>
       </div>
@@ -63,8 +89,8 @@ const Hero: React.FC = () => {
         </Reveal>
 
         <div className="mb-8 relative w-full">
-            {/* Subtle glow behind title */}
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-2/3 h-2/3 bg-accent/20 blur-[80px] -z-10 rounded-full"></div>
+            {/* Subtle glow behind title - Static to ensure readability */}
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-2/3 h-2/3 bg-accent/10 blur-[80px] -z-10 rounded-full"></div>
             
             <Reveal width="100%">
             <h1 className="font-display font-bold text-5xl md:text-8xl lg:text-9xl leading-tight tracking-tighter text-transparent bg-clip-text bg-gradient-to-b from-white via-white to-neutral-400 drop-shadow-2xl">
@@ -84,7 +110,7 @@ const Hero: React.FC = () => {
             <a 
               href="#work"
               onClick={handleScrollToWork}
-              className="group relative px-8 py-4 bg-white text-black rounded-full overflow-hidden flex items-center gap-3 font-semibold tracking-wide hover:scale-105 transition-transform duration-300 shadow-[0_0_20px_rgba(16,185,129,0.3)] hover:shadow-[0_0_30px_rgba(16,185,129,0.6)]"
+              className="group relative px-8 py-4 bg-white text-black rounded-full overflow-hidden flex items-center gap-3 font-semibold tracking-wide hover:scale-105 transition-transform duration-300 shadow-[0_0_20px_rgba(139,92,246,0.3)] hover:shadow-[0_0_30px_rgba(139,92,246,0.6)]"
             >
               <span className="relative z-10 group-hover:text-white transition-colors duration-300">{hero.ctaText}</span>
               <div className="absolute inset-0 bg-accent translate-y-full group-hover:translate-y-0 transition-transform duration-300 z-0"></div>

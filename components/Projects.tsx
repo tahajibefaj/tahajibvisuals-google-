@@ -55,7 +55,7 @@ const Projects: React.FC = () => {
                   className={clsx(
                     "group relative aspect-video overflow-hidden rounded-lg cursor-pointer cursor-hover-trigger",
                     "border border-white/10 hover:border-accent/50",
-                    "hover:shadow-[0_0_30px_rgba(16,185,129,0.15)] transition-all duration-500"
+                    "hover:shadow-[0_0_30px_rgba(139,92,246,0.15)] transition-all duration-500"
                   )}
                   onClick={() => setSelectedProjectIndex(index)}
                   data-context="project"

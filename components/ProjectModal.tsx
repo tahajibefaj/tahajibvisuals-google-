@@ -164,7 +164,7 @@ const ProjectModal: React.FC<ProjectModalProps> = ({ project, isOpen, onClose, o
                    <div className="absolute inset-0 flex items-center justify-center z-10">
                        <button 
                           onClick={() => setIsPlaying(true)}
-                          className="w-20 h-20 bg-accent/90 rounded-full flex items-center justify-center cursor-pointer hover:scale-110 transition-transform group shadow-[0_0_30px_rgba(16,185,129,0.4)]"
+                          className="w-20 h-20 bg-accent/90 rounded-full flex items-center justify-center cursor-pointer hover:scale-110 transition-transform group shadow-[0_0_30px_rgba(139,92,246,0.4)]"
                        >
                            <Play size={32} fill="white" className="text-white ml-1" />
                        </button>
