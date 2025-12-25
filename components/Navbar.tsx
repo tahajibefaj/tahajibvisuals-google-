@@ -164,6 +164,14 @@ const Navbar: React.FC<NavbarProps> = ({ isScrolled, scrollbar }) => {
             exit={{ opacity: 0, y: -20 }}
             className="fixed inset-0 bg-black z-40 flex flex-col items-center justify-center gap-8 md:hidden pointer-events-auto"
           >
+            {/* Explicit Exit Button for Mobile Menu */}
+            <button
+              className="absolute top-8 right-8 text-neutral-400 hover:text-white p-2 transition-colors"
+              onClick={() => setMobileMenuOpen(false)}
+            >
+              <X size={32} />
+            </button>
+
             {navItems.map((item) => (
               <a
                 key={item.label}
