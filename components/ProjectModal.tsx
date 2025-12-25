@@ -54,6 +54,11 @@ const getToolDescription = (tool: string) => {
 const ProjectModal: React.FC<ProjectModalProps> = ({ project, isOpen, onClose, onNext, onPrev }) => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [isBreakdownOpen, setIsBreakdownOpen] = useState(false);
+  
+  // Touch Swipe Logic State
+  const [touchStart, setTouchStart] = useState<{x: number, y: number} | null>(null);
+  const [touchEnd, setTouchEnd] = useState<{x: number, y: number} | null>(null);
+  const minSwipeDistance = 50;
 
   useEffect(() => {
     if (isOpen) {
@@ -86,6 +91,28 @@ const ProjectModal: React.FC<ProjectModalProps> = ({ project, isOpen, onClose, o
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [isOpen, onClose, onNext, onPrev]);
 
+  // Touch Event Handlers
+  const onTouchStart = (e: React.TouchEvent) => {
+    setTouchEnd(null);
+    setTouchStart({ x: e.targetTouches[0].clientX, y: e.targetTouches[0].clientY });
+  };
+
+  const onTouchMove = (e: React.TouchEvent) => {
+    setTouchEnd({ x: e.targetTouches[0].clientX, y: e.targetTouches[0].clientY });
+  };
+
+  const onTouchEnd = () => {
+    if (!touchStart || !touchEnd) return;
+    const distanceX = touchStart.x - touchEnd.x;
+    const distanceY = touchStart.y - touchEnd.y;
+    
+    // Ignore swipe if vertical scroll is dominant (user is reading description)
+    if (Math.abs(distanceY) > Math.abs(distanceX)) return;
+    
+    if (distanceX > minSwipeDistance && onNext) onNext(); // Swipe Left -> Next
+    if (distanceX < -minSwipeDistance && onPrev) onPrev(); // Swipe Right -> Prev
+  };
+
   if (!isOpen) return null;
 
   const getEmbedUrl = (url?: string) => {
@@ -116,130 +143,141 @@ const ProjectModal: React.FC<ProjectModalProps> = ({ project, isOpen, onClose, o
         className="absolute inset-0 bg-black/90 backdrop-blur-sm"
       />
       
-      <motion.div
-        initial={{ y: 50, opacity: 0, scale: 0.98 }}
-        animate={{ y: 0, opacity: 1, scale: 1 }}
-        exit={{ y: 50, opacity: 0, scale: 0.98 }}
-        transition={{ type: "spring", damping: 25, stiffness: 200 }}
-        className="relative bg-surface rounded-xl border border-white/10 shadow-2xl overflow-hidden flex flex-col lg:grid lg:grid-cols-[1fr_420px]"
-        style={{
-            height: 'min(90vh, 900px)',
-            width: 'min(90vw, 1400px)',
-            maxHeight: '90vh',
-            maxWidth: '1400px'
-        }}
-        onClick={(e) => e.stopPropagation()} 
-      >
-        <button
-          onClick={onClose}
-          className="absolute top-4 right-4 z-50 p-2 bg-black/50 rounded-full hover:bg-accent hover:text-black transition-colors"
+      {/* 
+         Wrapped in AnimatePresence with mode='wait' to smooth transitions between projects 
+         Key prop on motion.div ensures Framer Motion detects the change
+      */}
+      <AnimatePresence mode="wait">
+        <motion.div
+            key={project.id}
+            initial={{ y: 50, opacity: 0, scale: 0.98 }}
+            animate={{ y: 0, opacity: 1, scale: 1 }}
+            exit={{ y: 50, opacity: 0, scale: 0.98 }}
+            transition={{ type: "spring", damping: 25, stiffness: 200 }}
+            className="relative bg-surface rounded-xl border border-white/10 shadow-2xl overflow-hidden flex flex-col lg:grid lg:grid-cols-[1fr_420px]"
+            style={{
+                height: 'min(90vh, 900px)',
+                width: 'min(90vw, 1400px)',
+                maxHeight: '90vh',
+                maxWidth: '1400px',
+                touchAction: 'pan-y' // Allows vertical scroll but captures horizontal swipes in JS
+            }}
+            onClick={(e) => e.stopPropagation()} 
+            onTouchStart={onTouchStart}
+            onTouchMove={onTouchMove}
+            onTouchEnd={onTouchEnd}
         >
-          <X size={24} />
-        </button>
+            <button
+            onClick={onClose}
+            className="absolute top-4 right-4 z-50 p-2 bg-black/50 rounded-full hover:bg-accent hover:text-black transition-colors"
+            >
+            <X size={24} />
+            </button>
 
-        {/* Navigation Arrows (Desktop) */}
-        <button 
-            onClick={onPrev}
-            className="hidden lg:flex absolute left-4 top-1/2 -translate-y-1/2 z-50 p-3 bg-black/50 rounded-full hover:bg-white hover:text-black transition-all"
-        >
-            <ChevronLeft size={24} />
-        </button>
-        <button 
-            onClick={onNext}
-            className="hidden lg:flex absolute right-[440px] top-1/2 -translate-y-1/2 z-50 p-3 bg-black/50 rounded-full hover:bg-white hover:text-black transition-all"
-        >
-            <ChevronRight size={24} />
-        </button>
+            {/* Navigation Arrows (Desktop) */}
+            <button 
+                onClick={onPrev}
+                className="hidden lg:flex absolute left-4 top-1/2 -translate-y-1/2 z-50 p-3 bg-black/50 rounded-full hover:bg-white hover:text-black transition-all"
+            >
+                <ChevronLeft size={24} />
+            </button>
+            <button 
+                onClick={onNext}
+                className="hidden lg:flex absolute right-[440px] top-1/2 -translate-y-1/2 z-50 p-3 bg-black/50 rounded-full hover:bg-white hover:text-black transition-all"
+            >
+                <ChevronRight size={24} />
+            </button>
 
-        {/* LEFT COLUMN: Video Area */}
-        <div className="w-full h-[40vh] lg:h-full bg-black relative flex items-center justify-center overflow-hidden order-1 lg:order-none">
-             <div className="relative w-full aspect-video bg-black shadow-2xl flex items-center justify-center">
-               {!isPlaying ? (
-                 <>
-                   <img 
-                     src={project.thumbnail} 
-                     alt={project.title} 
-                     className="absolute inset-0 w-full h-full object-cover opacity-80"
-                   />
-                   <div className="absolute inset-0 flex items-center justify-center z-10">
-                       <button 
-                          onClick={() => setIsPlaying(true)}
-                          className="w-20 h-20 bg-accent/90 rounded-full flex items-center justify-center cursor-pointer hover:scale-110 transition-transform group shadow-[0_0_30px_rgba(139,92,246,0.4)]"
-                       >
-                           <Play size={32} fill="white" className="text-white ml-1" />
-                       </button>
-                   </div>
-                 </>
-               ) : (
-                 <iframe 
-                    src={getEmbedUrl(project.videoUrl)} 
-                    title={project.title}
-                    className="absolute inset-0 w-full h-full border-none"
-                    allow="autoplay; encrypted-media; picture-in-picture; fullscreen" 
-                    allowFullScreen
-                  ></iframe>
-               )}
-             </div>
-        </div>
-
-        {/* RIGHT COLUMN: Text Content */}
-        <div className="w-full h-full bg-surface flex flex-col overflow-y-auto overflow-x-hidden custom-scrollbar border-t lg:border-t-0 lg:border-l lg:border-white/5 relative z-10 order-2 lg:order-none">
-            <div className="p-8 lg:p-10 lg:pt-16">
-                <span className="text-accent text-sm tracking-widest uppercase mb-2 block">{project.category}</span>
-                <h3 className="text-3xl font-display font-bold text-white mb-6 leading-tight">{project.title}</h3>
-                
-                <div className="flex flex-wrap gap-2 mb-8">
-                {project.tools.map((tool) => (
-                    <Tooltip key={tool} text={getToolDescription(tool)}>
-                        <span className="px-3 py-1 bg-white/5 border border-white/10 rounded-full text-xs text-neutral-300 hover:border-white/40 transition-colors cursor-help">
-                        {tool}
-                        </span>
-                    </Tooltip>
-                ))}
-                </div>
-
-                <div className="space-y-6 text-neutral-400 leading-relaxed">
-                    <p>{project.description}</p>
-                    {/* Micro Project Breakdown Toggle */}
-                    <div className="border border-white/5 rounded-lg overflow-hidden bg-black/20 mt-6">
+            {/* LEFT COLUMN: Video Area */}
+            <div className="w-full h-[40vh] lg:h-full bg-black relative flex items-center justify-center overflow-hidden order-1 lg:order-none">
+                <div className="relative w-full aspect-video bg-black shadow-2xl flex items-center justify-center">
+                {!isPlaying ? (
+                    <>
+                    <img 
+                        src={project.thumbnail} 
+                        alt={project.title} 
+                        className="absolute inset-0 w-full h-full object-cover opacity-80"
+                    />
+                    <div className="absolute inset-0 flex items-center justify-center z-10">
                         <button 
-                            onClick={() => setIsBreakdownOpen(!isBreakdownOpen)}
-                            className="w-full flex items-center justify-between p-4 text-xs uppercase tracking-widest font-semibold text-neutral-300 hover:text-white transition-colors"
+                            onClick={() => setIsPlaying(true)}
+                            className="w-20 h-20 bg-accent/90 rounded-full flex items-center justify-center cursor-pointer hover:scale-110 transition-transform group shadow-[0_0_30px_rgba(139,92,246,0.4)]"
                         >
-                            <span>Project Breakdown</span>
-                            <ChevronDown size={16} className={clsx("transition-transform duration-300", isBreakdownOpen && "rotate-180")} />
+                            <Play size={32} fill="white" className="text-white ml-1" />
                         </button>
-                        <AnimatePresence>
-                            {isBreakdownOpen && (
-                                <motion.div
-                                    initial={{ height: 0, opacity: 0 }}
-                                    animate={{ height: "auto", opacity: 1 }}
-                                    exit={{ height: 0, opacity: 0 }}
-                                    className="px-4 pb-4"
-                                >
-                                    <ul className="space-y-3 pt-2 border-t border-white/5">
-                                        <li className="flex flex-col gap-1">
-                                            <span className="text-accent text-[10px] uppercase tracking-wider">Goal</span>
-                                            <span className="text-sm text-white">{breakdown.goal}</span>
-                                        </li>
-                                        <li className="flex flex-col gap-1">
-                                            <span className="text-accent text-[10px] uppercase tracking-wider">Editing Focus</span>
-                                            <span className="text-sm text-white">{breakdown.focus}</span>
-                                        </li>
-                                        <li className="flex flex-col gap-1">
-                                            <span className="text-accent text-[10px] uppercase tracking-wider">Result</span>
-                                            <span className="text-sm text-white">{breakdown.result}</span>
-                                        </li>
-                                    </ul>
-                                </motion.div>
-                            )}
-                        </AnimatePresence>
+                    </div>
+                    </>
+                ) : (
+                    <iframe 
+                        src={getEmbedUrl(project.videoUrl)} 
+                        title={project.title}
+                        className="absolute inset-0 w-full h-full border-none"
+                        allow="autoplay; encrypted-media; picture-in-picture; fullscreen" 
+                        allowFullScreen
+                    ></iframe>
+                )}
+                </div>
+            </div>
+
+            {/* RIGHT COLUMN: Text Content */}
+            <div className="w-full h-full bg-surface flex flex-col overflow-y-auto overflow-x-hidden custom-scrollbar border-t lg:border-t-0 lg:border-l lg:border-white/5 relative z-10 order-2 lg:order-none">
+                <div className="p-8 lg:p-10 lg:pt-16">
+                    <span className="text-accent text-sm tracking-widest uppercase mb-2 block">{project.category}</span>
+                    <h3 className="text-3xl font-display font-bold text-white mb-6 leading-tight">{project.title}</h3>
+                    
+                    <div className="flex flex-wrap gap-2 mb-8">
+                    {project.tools.map((tool) => (
+                        <Tooltip key={tool} text={getToolDescription(tool)}>
+                            <span className="px-3 py-1 bg-white/5 border border-white/10 rounded-full text-xs text-neutral-300 hover:border-white/40 transition-colors cursor-help">
+                            {tool}
+                            </span>
+                        </Tooltip>
+                    ))}
+                    </div>
+
+                    <div className="space-y-6 text-neutral-400 leading-relaxed">
+                        <p>{project.description}</p>
+                        {/* Micro Project Breakdown Toggle */}
+                        <div className="border border-white/5 rounded-lg overflow-hidden bg-black/20 mt-6">
+                            <button 
+                                onClick={() => setIsBreakdownOpen(!isBreakdownOpen)}
+                                className="w-full flex items-center justify-between p-4 text-xs uppercase tracking-widest font-semibold text-neutral-300 hover:text-white transition-colors"
+                            >
+                                <span>Project Breakdown</span>
+                                <ChevronDown size={16} className={clsx("transition-transform duration-300", isBreakdownOpen && "rotate-180")} />
+                            </button>
+                            <AnimatePresence>
+                                {isBreakdownOpen && (
+                                    <motion.div
+                                        initial={{ height: 0, opacity: 0 }}
+                                        animate={{ height: "auto", opacity: 1 }}
+                                        exit={{ height: 0, opacity: 0 }}
+                                        className="px-4 pb-4"
+                                    >
+                                        <ul className="space-y-3 pt-2 border-t border-white/5">
+                                            <li className="flex flex-col gap-1">
+                                                <span className="text-accent text-[10px] uppercase tracking-wider">Goal</span>
+                                                <span className="text-sm text-white">{breakdown.goal}</span>
+                                            </li>
+                                            <li className="flex flex-col gap-1">
+                                                <span className="text-accent text-[10px] uppercase tracking-wider">Editing Focus</span>
+                                                <span className="text-sm text-white">{breakdown.focus}</span>
+                                            </li>
+                                            <li className="flex flex-col gap-1">
+                                                <span className="text-accent text-[10px] uppercase tracking-wider">Result</span>
+                                                <span className="text-sm text-white">{breakdown.result}</span>
+                                            </li>
+                                        </ul>
+                                    </motion.div>
+                                )}
+                            </AnimatePresence>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
-          
-      </motion.div>
+            
+        </motion.div>
+      </AnimatePresence>
     </div>,
     document.body
   );
