@@ -8,20 +8,16 @@ const Hero: React.FC = () => {
   const { hero } = content;
 
   // Mouse Follower Logic for Hero Background
-  // Initialize to center screen so it looks good before interaction
-  // Subtract 400 (half of 800px width) to center the blob
+  // Initialize to center screen
   const mouseX = useMotionValue(typeof window !== 'undefined' ? (window.innerWidth / 2) - 400 : 0);
   const mouseY = useMotionValue(typeof window !== 'undefined' ? (window.innerHeight / 2) - 400 : 0);
 
-  // Smooth spring physics for "easy to load" performance feel
-  const springConfig = { damping: 50, stiffness: 400, mass: 0.5 }; // Snappy but smooth
+  const springConfig = { damping: 50, stiffness: 400, mass: 0.5 };
   const x = useSpring(mouseX, springConfig);
   const y = useSpring(mouseY, springConfig);
 
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
-      // Use pageX/Y to ensure it tracks correctly relative to the document/hero container
-      // Subtract 400px (half of the 800px width/height) to center the gradient on the cursor
       mouseX.set(e.pageX - 400);
       mouseY.set(e.pageY - 400);
     };
@@ -33,14 +29,12 @@ const Hero: React.FC = () => {
   const handleScrollToWork = (e: React.MouseEvent<HTMLAnchorElement>) => {
     e.preventDefault();
     const element = document.getElementById('work');
-    const lenis = (window as any).lenis;
+    const sb = (window as any).scrollbar;
 
-    if (element) {
-        if (lenis) {
-            lenis.scrollTo(element);
-        } else {
-            element.scrollIntoView({ behavior: 'smooth' });
-        }
+    if (element && sb) {
+        sb.scrollIntoView(element, { damping: 0.07, offsetTop: 0 });
+    } else if (element) {
+        element.scrollIntoView({ behavior: 'smooth' });
     }
   };
 
@@ -50,7 +44,7 @@ const Hero: React.FC = () => {
       className="relative min-h-screen flex items-center justify-center overflow-hidden pt-20"
       data-context="hero"
     >
-      {/* Background Ambience - Responsive Mouse Follower */}
+      {/* Background Ambience */}
       <div className="absolute top-0 left-0 w-full h-full z-0 pointer-events-none">
         {/* Dynamic Mouse Follower Glow */}
         <motion.div 
@@ -58,7 +52,7 @@ const Hero: React.FC = () => {
             className="absolute top-0 left-0 w-[800px] h-[800px] bg-accent/25 rounded-full blur-[120px] animate-pulse will-change-transform"
         />
 
-        {/* Static Anchor Glow (Bottom Right) - Reduced intensity to let mouse glow shine */}
+        {/* Static Anchor Glow */}
         <div className="absolute bottom-[-10%] right-[-10%] w-[600px] h-[600px] bg-accent/10 rounded-full blur-[130px]"></div>
         
         {/* Noise overlay */}
@@ -66,7 +60,7 @@ const Hero: React.FC = () => {
       </div>
 
       <div className="container mx-auto px-6 relative z-10 text-center flex flex-col items-center">
-        {/* 3) Availability Indicator */}
+        {/* Availability Indicator */}
         <Reveal width="fit-content">
           <motion.div 
             initial={{ opacity: 0, y: -10 }}
@@ -89,7 +83,6 @@ const Hero: React.FC = () => {
         </Reveal>
 
         <div className="mb-8 relative w-full">
-            {/* Subtle glow behind title - Static to ensure readability */}
             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-2/3 h-2/3 bg-accent/10 blur-[80px] -z-10 rounded-full"></div>
             
             <Reveal width="100%">

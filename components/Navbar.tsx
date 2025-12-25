@@ -20,40 +20,56 @@ const Navbar: React.FC<NavbarProps> = ({ isScrolled }) => {
   const [ctaLabel, setCtaLabel] = useState("");
   const { content } = useContent();
 
-  // Smart CTA Text Logic using Native Scroll
+  // Smart CTA Text Logic using Scrollbar listener
   useEffect(() => {
     // Set initial
     setCtaLabel(content.navbar.ctaText);
 
-    const handleScroll = () => {
+    // Function to calculate CTA based on offset
+    const checkScroll = (y: number) => {
         const projects = document.getElementById('work');
         const about = document.getElementById('about');
         const contact = document.getElementById('contact');
-        const scrollY = window.scrollY; // Use native window scroll
         
-        // Logic: Button always links to booking/contact, so text must persuade action
-        let newLabel = content.navbar.ctaText; // Default "Book a Call"
+        let newLabel = content.navbar.ctaText;
 
-        // Adjust offsets to trigger slightly before the section hits top
-        if (contact && scrollY >= contact.offsetTop - 500) {
-            newLabel = "Book a Call"; // Ready to close
-        } else if (about && scrollY >= about.offsetTop - 300) {
-            newLabel = "Let's Talk"; // Building relationship
-        } else if (projects && scrollY >= projects.offsetTop - 300) {
-            newLabel = "Start Project"; // Inspired by work
+        // Use standard element offsets. 
+        // Note: smooth-scrollbar translates the content, but offsetTop stays static relative to parent.
+        if (contact && y >= contact.offsetTop - 500) {
+            newLabel = "Book a Call";
+        } else if (about && y >= about.offsetTop - 300) {
+            newLabel = "Let's Talk";
+        } else if (projects && y >= projects.offsetTop - 300) {
+            newLabel = "Start Project";
         } else {
-             newLabel = "Book a Call"; // Hero default
+             newLabel = "Book a Call";
         }
         
         setCtaLabel(newLabel);
     };
 
-    window.addEventListener('scroll', handleScroll);
-    // Run once
-    handleScroll();
+    // If scrollbar exists, use its listener
+    const sb = (window as any).scrollbar;
+    let listener: any;
+
+    if (sb) {
+        listener = ({ offset }: { offset: { y: number } }) => {
+            checkScroll(offset.y);
+        };
+        sb.addListener(listener);
+        // Initial check
+        checkScroll(sb.offset.y);
+    } else {
+        // Fallback for native scroll (if JS loads late)
+        const handleNativeScroll = () => checkScroll(window.scrollY);
+        window.addEventListener('scroll', handleNativeScroll);
+        return () => window.removeEventListener('scroll', handleNativeScroll);
+    }
 
     return () => {
-        window.removeEventListener('scroll', handleScroll);
+        if (sb && listener) {
+            sb.removeListener(listener);
+        }
     };
   }, [content.navbar.ctaText]);
 
@@ -63,13 +79,16 @@ const Navbar: React.FC<NavbarProps> = ({ isScrolled }) => {
     const targetId = href.replace('#', '');
     const element = document.getElementById(targetId);
     
-    // Use Lenis if available, otherwise fallback to native smooth scroll
-    if (element) {
-        if ((window as any).lenis) {
-            (window as any).lenis.scrollTo(element);
-        } else {
-            element.scrollIntoView({ behavior: 'smooth' });
-        }
+    // Use Smooth Scrollbar if available
+    const sb = (window as any).scrollbar;
+    
+    if (element && sb) {
+        sb.scrollIntoView(element, {
+            damping: 0.07,
+            offsetTop: 0,
+        });
+    } else if (element) {
+        element.scrollIntoView({ behavior: 'smooth' });
     }
     setMobileMenuOpen(false);
   };

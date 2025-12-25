@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import Navbar from './components/Navbar';
 import Hero from './components/Hero';
 import Projects from './components/Projects';
@@ -12,52 +12,48 @@ import ContextMenu from './components/ContextMenu';
 import Protection from './components/Protection'; 
 import { ContentProvider } from './context/ContentContext';
 import { SkeletonTheme } from 'react-loading-skeleton';
-import Lenis from 'lenis';
+import Scrollbar from 'smooth-scrollbar';
 
 function App() {
   const [isScrolled, setIsScrolled] = useState(false);
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const [scrollbar, setScrollbar] = useState<any>(null);
 
   useEffect(() => {
-    // Initialize Lenis for premium smooth scrolling + native features
-    const lenis = new Lenis({
-      duration: 1.2,
-      easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
-      direction: 'vertical',
-      gestureDirection: 'vertical',
-      smooth: true,
-      mouseMultiplier: 1,
-      smoothTouch: false,
-      touchMultiplier: 2,
-    });
+    let sb: any;
 
-    // RAF Loop
-    function raf(time: number) {
-      lenis.raf(time);
-      requestAnimationFrame(raf);
+    if (scrollContainerRef.current) {
+      // Initialize smooth-scrollbar
+      sb = Scrollbar.init(scrollContainerRef.current, {
+        damping: 0.07, // Adjust momentum: lower is smoother/heavier
+        renderByPixels: true,
+        continuousScrolling: false,
+        alwaysShowTracks: false,
+      });
+
+      setScrollbar(sb);
+      
+      // Expose scrollbar globally for navigation
+      (window as any).scrollbar = sb;
+
+      // Sync Navbar state based on scroll offset
+      sb.addListener(({ offset }: { offset: { y: number } }) => {
+        setIsScrolled(offset.y > 50);
+      });
     }
-    requestAnimationFrame(raf);
-
-    // Expose lenis globally for navigation in other components
-    (window as any).lenis = lenis;
-
-    // Native scroll listener works now
-    const handleScroll = () => {
-      setIsScrolled(window.scrollY > 50);
-    };
-
-    window.addEventListener('scroll', handleScroll);
 
     return () => {
-      lenis.destroy();
-      window.removeEventListener('scroll', handleScroll);
-      (window as any).lenis = undefined;
+      if (sb) {
+        sb.destroy();
+        (window as any).scrollbar = undefined;
+      }
     };
   }, []);
 
   return (
     <ContentProvider>
       <SkeletonTheme baseColor="#202020" highlightColor="#444">
-        <div className="bg-background w-full min-h-screen flex flex-col text-white selection:bg-accent selection:text-black">
+        <div className="bg-background h-screen w-full flex flex-col text-white selection:bg-accent selection:text-black">
           {/* Inject styling for the modal's native scrollbar to keep it subtle/hidden until needed */}
           <style>{`
             .custom-scrollbar::-webkit-scrollbar {
@@ -85,15 +81,18 @@ function App() {
           <ContextMenu />
           <Navbar isScrolled={isScrolled} />
           
-          <main className="w-full">
-            <Hero />
-            <Projects />
-            <About />
-            <Services />
-            <Contact />
-            <FAQ />
-            <Footer />
-          </main>
+          {/* Main Scroll Container Wrapper */}
+          <div ref={scrollContainerRef} className="flex-1 w-full h-full overflow-hidden">
+            <main className="w-full">
+              <Hero />
+              <Projects />
+              <About />
+              <Services />
+              <Contact />
+              <FAQ />
+              <Footer />
+            </main>
+          </div>
         </div>
       </SkeletonTheme>
     </ContentProvider>

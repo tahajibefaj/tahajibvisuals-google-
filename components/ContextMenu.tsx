@@ -29,17 +29,15 @@ const ContextMenu: React.FC = () => {
   const [targetElement, setTargetElement] = useState<HTMLElement | null>(null);
   const [copied, setCopied] = useState(false);
 
-  // Helper to handle smooth scrolling using Lenis
+  // Helper to handle smooth scrolling using Smooth Scrollbar
   const handleScrollTo = useCallback((id: string) => {
     const element = document.getElementById(id);
-    const lenis = (window as any).lenis;
+    const sb = (window as any).scrollbar;
     
-    if (element) {
-      if (lenis) {
-        lenis.scrollTo(element);
-      } else {
+    if (element && sb) {
+      sb.scrollIntoView(element, { damping: 0.07, offsetTop: 0 });
+    } else if (element) {
         element.scrollIntoView({ behavior: 'smooth' });
-      }
     }
     setVisible(false);
   }, []);
@@ -127,21 +125,30 @@ const ContextMenu: React.FC = () => {
     };
 
     const handleClick = () => setVisible(false);
-    const handleScroll = () => setVisible(false);
+    
+    // For smooth-scrollbar, we can't easily rely on window 'scroll' event for closing, 
+    // but the context menu is fixed so it doesn't move away. 
+    // We can listen to the scrollbar instance instead.
+    const sb = (window as any).scrollbar;
+    let scrollListener: any;
+    if (sb) {
+        scrollListener = () => setVisible(false);
+        sb.addListener(scrollListener);
+    }
+
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') setVisible(false);
     };
 
     document.addEventListener('contextmenu', handleContextMenu);
     document.addEventListener('click', handleClick);
-    document.addEventListener('scroll', handleScroll, { capture: true });
     window.addEventListener('keydown', handleKeyDown);
 
     return () => {
       document.removeEventListener('contextmenu', handleContextMenu);
       document.removeEventListener('click', handleClick);
-      document.removeEventListener('scroll', handleScroll, { capture: true });
       window.removeEventListener('keydown', handleKeyDown);
+      if (sb && scrollListener) sb.removeListener(scrollListener);
     };
   }, []);
 
