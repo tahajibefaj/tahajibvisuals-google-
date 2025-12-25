@@ -33,11 +33,11 @@ const Hero: React.FC = () => {
   const handleScrollToWork = (e: React.MouseEvent<HTMLAnchorElement>) => {
     e.preventDefault();
     const element = document.getElementById('work');
-    const scrollbar = (window as any).scrollbar;
+    const lenis = (window as any).lenis;
 
     if (element) {
-        if (scrollbar) {
-            scrollbar.scrollIntoView(element, { offsetTop: 0, alignToTop: true });
+        if (lenis) {
+            lenis.scrollTo(element);
         } else {
             element.scrollIntoView({ behavior: 'smooth' });
         }

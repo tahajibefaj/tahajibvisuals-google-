@@ -38,17 +38,20 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/react-loading-skeleton/3.4.0/skeleton.min.css" />
 
     <style>
-      html, body, #root {
+      html {
         width: 100%;
-        height: 100%;
-        margin: 0;
-        padding: 0;
+        /* REMOVED: height: 100% - This was trapping scroll in body */
+        min-height: 100%;
+        scroll-behavior: initial; /* Lenis handles this */
       }
 
       body {
         cursor: none !important; /* Hide default cursor for custom one */
         background-color: #000;
-        overflow: hidden; /* Important for smooth-scrollbar */
+        min-height: 100vh;
+        width: 100%;
+        overflow-x: hidden; /* Prevent horizontal scroll */
+        /* REMOVED: overflow-y: auto - Let window handle scroll */
         
         /* 1) Global Text Protection */
         -webkit-user-select: none;
@@ -83,23 +86,41 @@
         text-shadow: 0 0 30px rgba(139, 92, 246, 0.5); /* Premium Violet Glow */
       }
 
-      /* Smooth Scrollbar Customization */
-      .scrollbar-track {
-        background: transparent !important;
+      /* Custom Native Scrollbar Styling (Webkit) */
+      ::-webkit-scrollbar {
+        width: 8px;
       }
-      .scrollbar-thumb {
-        background: #8b5cf6 !important; /* accent color */
-        border-radius: 20px !important;
-        opacity: 0.5;
+      ::-webkit-scrollbar-track {
+        background: #000;
       }
-      .scrollbar-thumb:hover {
-        background: #7c3aed !important; /* accentHover */
-        opacity: 1;
+      ::-webkit-scrollbar-thumb {
+        background: #333;
+        border-radius: 4px;
+      }
+      ::-webkit-scrollbar-thumb:hover {
+        background: #8b5cf6;
       }
 
       /* 4) Ensure native cursor is visible over iframes (YouTube) so controls are usable */
       iframe {
         cursor: auto !important; 
+      }
+      
+      /* Lenis Recommended CSS */
+      html.lenis {
+        height: auto;
+      }
+      .lenis.lenis-smooth {
+        scroll-behavior: auto;
+      }
+      .lenis.lenis-smooth [data-lenis-prevent] {
+        overscroll-behavior: contain;
+      }
+      .lenis.lenis-stopped {
+        overflow: hidden;
+      }
+      .lenis.lenis-scrolling iframe {
+        pointer-events: none;
       }
     </style>
   <script type="importmap">
@@ -112,7 +133,7 @@
     "react-dom/client": "https://esm.sh/react-dom@18.3.1/client",
     "lucide-react": "https://esm.sh/lucide-react@0.292.0?deps=react@18.3.1",
     "framer-motion": "https://esm.sh/framer-motion@10.16.5?deps=react@18.3.1,react-dom@18.3.1",
-    "smooth-scrollbar": "https://esm.sh/smooth-scrollbar@8.8.4",
+    "lenis": "https://esm.sh/@studio-freight/lenis@1.0.42",
     "@supabase/supabase-js": "https://esm.sh/@supabase/supabase-js@2.39.3",
     "clsx": "https://esm.sh/clsx@2.1.0",
     "react-intersection-observer": "https://esm.sh/react-intersection-observer@9.5.3?deps=react@18.3.1",

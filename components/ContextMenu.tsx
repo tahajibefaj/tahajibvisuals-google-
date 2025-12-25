@@ -29,13 +29,14 @@ const ContextMenu: React.FC = () => {
   const [targetElement, setTargetElement] = useState<HTMLElement | null>(null);
   const [copied, setCopied] = useState(false);
 
-  // Helper to handle smooth scrolling using the existing global scrollbar instance
+  // Helper to handle smooth scrolling using Lenis
   const handleScrollTo = useCallback((id: string) => {
     const element = document.getElementById(id);
-    const scrollbar = (window as any).scrollbar;
+    const lenis = (window as any).lenis;
+    
     if (element) {
-      if (scrollbar) {
-        scrollbar.scrollIntoView(element, { offsetTop: 0, alignToTop: true });
+      if (lenis) {
+        lenis.scrollTo(element);
       } else {
         element.scrollIntoView({ behavior: 'smooth' });
       }

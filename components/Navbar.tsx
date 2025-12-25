@@ -13,26 +13,23 @@ const navItems = [
 
 interface NavbarProps {
   isScrolled: boolean;
-  scrollbar?: any; // Received from App.tsx
 }
 
-const Navbar: React.FC<NavbarProps> = ({ isScrolled, scrollbar }) => {
+const Navbar: React.FC<NavbarProps> = ({ isScrolled }) => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [ctaLabel, setCtaLabel] = useState("");
   const { content } = useContent();
 
-  // Smart CTA Text Logic
+  // Smart CTA Text Logic using Native Scroll
   useEffect(() => {
     // Set initial
     setCtaLabel(content.navbar.ctaText);
 
-    if (!scrollbar) return;
-
-    const handleScroll = ({ offset }: { offset: { y: number } }) => {
+    const handleScroll = () => {
         const projects = document.getElementById('work');
         const about = document.getElementById('about');
         const contact = document.getElementById('contact');
-        const scrollY = offset.y;
+        const scrollY = window.scrollY; // Use native window scroll
         
         // Logic: Button always links to booking/contact, so text must persuade action
         let newLabel = content.navbar.ctaText; // Default "Book a Call"
@@ -51,16 +48,14 @@ const Navbar: React.FC<NavbarProps> = ({ isScrolled, scrollbar }) => {
         setCtaLabel(newLabel);
     };
 
-    // Attach listener to the passed scrollbar instance
-    scrollbar.addListener(handleScroll);
-
-    // Run once to set initial state correctly if we started scrolled down
-    handleScroll({ offset: { y: scrollbar.offset.y } });
+    window.addEventListener('scroll', handleScroll);
+    // Run once
+    handleScroll();
 
     return () => {
-        scrollbar.removeListener(handleScroll);
+        window.removeEventListener('scroll', handleScroll);
     };
-  }, [content.navbar.ctaText, scrollbar]);
+  }, [content.navbar.ctaText]);
 
 
   const handleNavClick = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
@@ -68,17 +63,13 @@ const Navbar: React.FC<NavbarProps> = ({ isScrolled, scrollbar }) => {
     const targetId = href.replace('#', '');
     const element = document.getElementById(targetId);
     
+    // Use Lenis if available, otherwise fallback to native smooth scroll
     if (element) {
-      if (scrollbar) {
-        scrollbar.scrollIntoView(element, {
-          offsetTop: 0,
-          offsetLeft: 0,
-          alignToTop: true,
-        });
-      } else {
-        // Fallback
-        element.scrollIntoView({ behavior: 'smooth' });
-      }
+        if ((window as any).lenis) {
+            (window as any).lenis.scrollTo(element);
+        } else {
+            element.scrollIntoView({ behavior: 'smooth' });
+        }
     }
     setMobileMenuOpen(false);
   };
