@@ -1,7 +1,7 @@
 import { SiteContent } from '../types';
 
 export const defaultContent: SiteContent = {
-  favicon: "/vite.svg", // Default fallback
+  favicon: "/favicon.ico", // Looks for a favicon.ico file in your root folder
   hero: {
     subtitle: "Cinematic Motion & Visuals",
     titleLine1: "TAHAJIB",
