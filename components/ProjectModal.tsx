@@ -54,7 +54,7 @@ const getToolDescription = (tool: string) => {
 const ProjectModal: React.FC<ProjectModalProps> = ({ project, isOpen, onClose, onNext, onPrev }) => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [isBreakdownOpen, setIsBreakdownOpen] = useState(false);
-  const [direction, setDirection] = useState(0); // -1 for prev, 1 for next
+  const [direction, setDirection] = useState(0); // -1 for prev, 1 for next, 0 for initial
   const [showSwipeHint, setShowSwipeHint] = useState(true);
   
   // Touch Swipe Logic State
@@ -66,6 +66,8 @@ const ProjectModal: React.FC<ProjectModalProps> = ({ project, isOpen, onClose, o
     if (isOpen) {
         setIsPlaying(false);
         setIsBreakdownOpen(false);
+        setDirection(0); // Reset direction on open to prevent slide animation
+        
         // Reset hint visibility on open, but set a timer to auto-hide it
         setShowSwipeHint(true);
         const timer = setTimeout(() => setShowSwipeHint(false), 4000);
@@ -153,9 +155,9 @@ const ProjectModal: React.FC<ProjectModalProps> = ({ project, isOpen, onClose, o
 
   const slideVariants: Variants = {
     enter: (direction: number) => ({
-      x: direction > 0 ? 200 : -200,
+      x: direction > 0 ? 200 : direction < 0 ? -200 : 0, // No slide if 0 (initial open)
       opacity: 0,
-      scale: 0.98
+      scale: 0.96
     }),
     center: {
       zIndex: 1,
@@ -169,9 +171,9 @@ const ProjectModal: React.FC<ProjectModalProps> = ({ project, isOpen, onClose, o
     },
     exit: (direction: number) => ({
       zIndex: 0,
-      x: direction < 0 ? 200 : -200,
+      x: direction < 0 ? 200 : direction > 0 ? -200 : 0,
       opacity: 0,
-      scale: 0.98,
+      scale: 0.96,
       transition: {
         x: { type: "spring", stiffness: 300, damping: 30 },
         opacity: { duration: 0.2 }
@@ -181,163 +183,178 @@ const ProjectModal: React.FC<ProjectModalProps> = ({ project, isOpen, onClose, o
 
   return createPortal(
     <div className="fixed inset-0 z-[100] flex items-center justify-center overflow-hidden">
+      {/* Backdrop */}
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
         onClick={onClose}
         className="absolute inset-0 bg-black/90 backdrop-blur-sm"
+        transition={{ duration: 0.3 }}
       />
-      
-      {/* Swipe Hint (Mobile Only) */}
-      <AnimatePresence>
-        {showSwipeHint && (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 10 }}
-            className="lg:hidden absolute bottom-8 left-1/2 -translate-x-1/2 z-[110] pointer-events-none"
-          >
-            <div className="bg-black/60 backdrop-blur-md border border-white/10 px-4 py-2 rounded-full flex items-center gap-2 shadow-2xl">
-                <Hand size={14} className="text-accent animate-pulse" />
-                <span className="text-[10px] uppercase tracking-widest text-white/80">Swipe to navigate</span>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
 
-      <AnimatePresence mode="wait" custom={direction}>
-        <motion.div
-            key={project.id}
-            custom={direction}
-            variants={slideVariants}
-            initial="enter"
-            animate="center"
-            exit="exit"
-            className="relative bg-surface rounded-xl border border-white/10 shadow-2xl overflow-hidden flex flex-col lg:grid lg:grid-cols-[1fr_420px]"
-            style={{
-                height: 'min(90vh, 900px)',
-                width: 'min(90vw, 1400px)',
-                maxHeight: '90vh',
-                maxWidth: '1400px',
-                touchAction: 'pan-y' // Allows vertical scroll but captures horizontal swipes in JS
-            }}
-            onClick={(e) => e.stopPropagation()} 
-            onTouchStart={onTouchStart}
-            onTouchMove={onTouchMove}
-            onTouchEnd={onTouchEnd}
-        >
-            <button
-            onClick={onClose}
-            className="absolute top-4 right-4 z-50 p-2 bg-black/50 rounded-full hover:bg-accent hover:text-black transition-colors"
-            >
-            <X size={24} />
-            </button>
-
-            {/* Navigation Arrows (Desktop) */}
-            <button 
-                onClick={handlePrev}
-                className="hidden lg:flex absolute left-4 top-1/2 -translate-y-1/2 z-50 p-3 bg-black/50 rounded-full hover:bg-white hover:text-black transition-all"
-            >
-                <ChevronLeft size={24} />
-            </button>
-            <button 
-                onClick={handleNext}
-                className="hidden lg:flex absolute right-[440px] top-1/2 -translate-y-1/2 z-50 p-3 bg-black/50 rounded-full hover:bg-white hover:text-black transition-all"
-            >
-                <ChevronRight size={24} />
-            </button>
-
-            {/* LEFT COLUMN: Video Area */}
-            <div className="w-full h-[40vh] lg:h-full bg-black relative flex items-center justify-center overflow-hidden order-1 lg:order-none">
-                <div className="relative w-full aspect-video bg-black shadow-2xl flex items-center justify-center">
-                {!isPlaying ? (
-                    <>
-                    <img 
-                        src={project.thumbnail} 
-                        alt={project.title} 
-                        className="absolute inset-0 w-full h-full object-cover opacity-80"
-                    />
-                    <div className="absolute inset-0 flex items-center justify-center z-10">
-                        <button 
-                            onClick={() => setIsPlaying(true)}
-                            className="w-20 h-20 bg-accent/90 rounded-full flex items-center justify-center cursor-pointer hover:scale-110 transition-transform group shadow-[0_0_30px_rgba(139,92,246,0.4)]"
-                        >
-                            <Play size={32} fill="white" className="text-white ml-1" />
-                        </button>
-                    </div>
-                    </>
-                ) : (
-                    <iframe 
-                        src={getEmbedUrl(project.videoUrl)} 
-                        title={project.title}
-                        className="absolute inset-0 w-full h-full border-none"
-                        allow="autoplay; encrypted-media; picture-in-picture; fullscreen" 
-                        allowFullScreen
-                    ></iframe>
-                )}
+      {/* 
+        Container Wrapper: Handles the Entrance/Exit Scale & Fade of the Modal itself.
+        Pointer events none ensures clicks pass through to backdrop if outside the card.
+      */}
+      <motion.div
+         className="relative w-full h-full flex items-center justify-center pointer-events-none"
+         initial={{ opacity: 0, scale: 0.95 }}
+         animate={{ opacity: 1, scale: 1 }}
+         exit={{ opacity: 0, scale: 0.95 }}
+         transition={{ duration: 0.2, ease: "easeOut" }}
+      >
+          {/* Swipe Hint (Mobile Only) */}
+          <AnimatePresence>
+            {showSwipeHint && (
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: 10 }}
+                className="lg:hidden absolute bottom-12 left-1/2 -translate-x-1/2 z-[110] pointer-events-none"
+              >
+                <div className="bg-black/80 backdrop-blur-md border border-white/20 px-5 py-2.5 rounded-full flex items-center gap-3 shadow-2xl">
+                    <Hand size={16} className="text-accent animate-pulse" />
+                    <span className="text-xs font-medium tracking-wide text-white/90 whitespace-nowrap">Swipe to browse projects</span>
                 </div>
-            </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
 
-            {/* RIGHT COLUMN: Text Content */}
-            <div className="w-full h-full bg-surface flex flex-col overflow-y-auto overflow-x-hidden custom-scrollbar border-t lg:border-t-0 lg:border-l lg:border-white/5 relative z-10 order-2 lg:order-none">
-                <div className="p-8 lg:p-10 lg:pt-16">
-                    <span className="text-accent text-sm tracking-widest uppercase mb-2 block">{project.category}</span>
-                    <h3 className="text-3xl font-display font-bold text-white mb-6 leading-tight">{project.title}</h3>
-                    
-                    <div className="flex flex-wrap gap-2 mb-8">
-                    {project.tools.map((tool) => (
-                        <Tooltip key={tool} text={getToolDescription(tool)}>
-                            <span className="px-3 py-1 bg-white/5 border border-white/10 rounded-full text-xs text-neutral-300 hover:border-white/40 transition-colors cursor-help">
-                            {tool}
-                            </span>
-                        </Tooltip>
-                    ))}
-                    </div>
+          {/* Card Content Swiper */}
+          <AnimatePresence mode="wait" custom={direction}>
+            <motion.div
+                key={project.id}
+                custom={direction}
+                variants={slideVariants}
+                initial="enter"
+                animate="center"
+                exit="exit"
+                className="pointer-events-auto relative bg-surface rounded-xl border border-white/10 shadow-2xl overflow-hidden flex flex-col lg:grid lg:grid-cols-[1fr_420px]"
+                style={{
+                    height: 'min(90vh, 900px)',
+                    width: 'min(90vw, 1400px)',
+                    maxHeight: '90vh',
+                    maxWidth: '1400px',
+                    touchAction: 'pan-y' // Allows vertical scroll but captures horizontal swipes in JS
+                }}
+                onClick={(e) => e.stopPropagation()} 
+                onTouchStart={onTouchStart}
+                onTouchMove={onTouchMove}
+                onTouchEnd={onTouchEnd}
+            >
+                <button
+                onClick={onClose}
+                className="absolute top-4 right-4 z-50 p-2 bg-black/50 rounded-full hover:bg-accent hover:text-black transition-colors"
+                >
+                <X size={24} />
+                </button>
 
-                    <div className="space-y-6 text-neutral-400 leading-relaxed">
-                        <p>{project.description}</p>
-                        {/* Micro Project Breakdown Toggle */}
-                        <div className="border border-white/5 rounded-lg overflow-hidden bg-black/20 mt-6">
+                {/* Navigation Arrows (Desktop) */}
+                <button 
+                    onClick={handlePrev}
+                    className="hidden lg:flex absolute left-4 top-1/2 -translate-y-1/2 z-50 p-3 bg-black/50 rounded-full hover:bg-white hover:text-black transition-all"
+                >
+                    <ChevronLeft size={24} />
+                </button>
+                <button 
+                    onClick={handleNext}
+                    className="hidden lg:flex absolute right-[440px] top-1/2 -translate-y-1/2 z-50 p-3 bg-black/50 rounded-full hover:bg-white hover:text-black transition-all"
+                >
+                    <ChevronRight size={24} />
+                </button>
+
+                {/* LEFT COLUMN: Video Area */}
+                <div className="w-full h-[40vh] lg:h-full bg-black relative flex items-center justify-center overflow-hidden order-1 lg:order-none">
+                    <div className="relative w-full aspect-video bg-black shadow-2xl flex items-center justify-center">
+                    {!isPlaying ? (
+                        <>
+                        <img 
+                            src={project.thumbnail} 
+                            alt={project.title} 
+                            className="absolute inset-0 w-full h-full object-cover opacity-80"
+                        />
+                        <div className="absolute inset-0 flex items-center justify-center z-10">
                             <button 
-                                onClick={() => setIsBreakdownOpen(!isBreakdownOpen)}
-                                className="w-full flex items-center justify-between p-4 text-xs uppercase tracking-widest font-semibold text-neutral-300 hover:text-white transition-colors"
+                                onClick={() => setIsPlaying(true)}
+                                className="w-20 h-20 bg-accent/90 rounded-full flex items-center justify-center cursor-pointer hover:scale-110 transition-transform group shadow-[0_0_30px_rgba(139,92,246,0.4)]"
                             >
-                                <span>Project Breakdown</span>
-                                <ChevronDown size={16} className={clsx("transition-transform duration-300", isBreakdownOpen && "rotate-180")} />
+                                <Play size={32} fill="white" className="text-white ml-1" />
                             </button>
-                            <AnimatePresence>
-                                {isBreakdownOpen && (
-                                    <motion.div
-                                        initial={{ height: 0, opacity: 0 }}
-                                        animate={{ height: "auto", opacity: 1 }}
-                                        exit={{ height: 0, opacity: 0 }}
-                                        className="px-4 pb-4"
-                                    >
-                                        <ul className="space-y-3 pt-2 border-t border-white/5">
-                                            <li className="flex flex-col gap-1">
-                                                <span className="text-accent text-[10px] uppercase tracking-wider">Goal</span>
-                                                <span className="text-sm text-white">{breakdown.goal}</span>
-                                            </li>
-                                            <li className="flex flex-col gap-1">
-                                                <span className="text-accent text-[10px] uppercase tracking-wider">Editing Focus</span>
-                                                <span className="text-sm text-white">{breakdown.focus}</span>
-                                            </li>
-                                            <li className="flex flex-col gap-1">
-                                                <span className="text-accent text-[10px] uppercase tracking-wider">Result</span>
-                                                <span className="text-sm text-white">{breakdown.result}</span>
-                                            </li>
-                                        </ul>
-                                    </motion.div>
-                                )}
-                            </AnimatePresence>
+                        </div>
+                        </>
+                    ) : (
+                        <iframe 
+                            src={getEmbedUrl(project.videoUrl)} 
+                            title={project.title}
+                            className="absolute inset-0 w-full h-full border-none"
+                            allow="autoplay; encrypted-media; picture-in-picture; fullscreen" 
+                            allowFullScreen
+                        ></iframe>
+                    )}
+                    </div>
+                </div>
+
+                {/* RIGHT COLUMN: Text Content */}
+                <div className="w-full h-full bg-surface flex flex-col overflow-y-auto overflow-x-hidden custom-scrollbar border-t lg:border-t-0 lg:border-l lg:border-white/5 relative z-10 order-2 lg:order-none">
+                    <div className="p-8 lg:p-10 lg:pt-16">
+                        <span className="text-accent text-sm tracking-widest uppercase mb-2 block">{project.category}</span>
+                        <h3 className="text-3xl font-display font-bold text-white mb-6 leading-tight">{project.title}</h3>
+                        
+                        <div className="flex flex-wrap gap-2 mb-8">
+                        {project.tools.map((tool) => (
+                            <Tooltip key={tool} text={getToolDescription(tool)}>
+                                <span className="px-3 py-1 bg-white/5 border border-white/10 rounded-full text-xs text-neutral-300 hover:border-white/40 transition-colors cursor-help">
+                                {tool}
+                                </span>
+                            </Tooltip>
+                        ))}
+                        </div>
+
+                        <div className="space-y-6 text-neutral-400 leading-relaxed">
+                            <p>{project.description}</p>
+                            {/* Micro Project Breakdown Toggle */}
+                            <div className="border border-white/5 rounded-lg overflow-hidden bg-black/20 mt-6">
+                                <button 
+                                    onClick={() => setIsBreakdownOpen(!isBreakdownOpen)}
+                                    className="w-full flex items-center justify-between p-4 text-xs uppercase tracking-widest font-semibold text-neutral-300 hover:text-white transition-colors"
+                                >
+                                    <span>Project Breakdown</span>
+                                    <ChevronDown size={16} className={clsx("transition-transform duration-300", isBreakdownOpen && "rotate-180")} />
+                                </button>
+                                <AnimatePresence>
+                                    {isBreakdownOpen && (
+                                        <motion.div
+                                            initial={{ height: 0, opacity: 0 }}
+                                            animate={{ height: "auto", opacity: 1 }}
+                                            exit={{ height: 0, opacity: 0 }}
+                                            className="px-4 pb-4"
+                                        >
+                                            <ul className="space-y-3 pt-2 border-t border-white/5">
+                                                <li className="flex flex-col gap-1">
+                                                    <span className="text-accent text-[10px] uppercase tracking-wider">Goal</span>
+                                                    <span className="text-sm text-white">{breakdown.goal}</span>
+                                                </li>
+                                                <li className="flex flex-col gap-1">
+                                                    <span className="text-accent text-[10px] uppercase tracking-wider">Editing Focus</span>
+                                                    <span className="text-sm text-white">{breakdown.focus}</span>
+                                                </li>
+                                                <li className="flex flex-col gap-1">
+                                                    <span className="text-accent text-[10px] uppercase tracking-wider">Result</span>
+                                                    <span className="text-sm text-white">{breakdown.result}</span>
+                                                </li>
+                                            </ul>
+                                        </motion.div>
+                                    )}
+                                </AnimatePresence>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
-            
-        </motion.div>
-      </AnimatePresence>
+                
+            </motion.div>
+          </AnimatePresence>
+      </motion.div>
     </div>,
     document.body
   );
