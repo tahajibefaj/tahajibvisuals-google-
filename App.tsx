@@ -10,9 +10,30 @@ import Footer from './components/Footer';
 import CustomCursor from './components/CustomCursor';
 import ContextMenu from './components/ContextMenu';
 import Protection from './components/Protection'; 
-import { ContentProvider } from './context/ContentContext';
+import { ContentProvider, useContent } from './context/ContentContext';
 import { SkeletonTheme } from 'react-loading-skeleton';
 import Scrollbar from 'smooth-scrollbar';
+
+// Helper component to update Favicon dynamically
+const FaviconUpdater = () => {
+  const { content } = useContent();
+
+  useEffect(() => {
+    if (content.favicon) {
+      const link = document.querySelector("link[rel~='icon']") as HTMLLinkElement;
+      if (link) {
+        link.href = content.favicon;
+      } else {
+        const newLink = document.createElement('link');
+        newLink.rel = 'icon';
+        newLink.href = content.favicon;
+        document.head.appendChild(newLink);
+      }
+    }
+  }, [content.favicon]);
+
+  return null;
+};
 
 function App() {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -52,6 +73,7 @@ function App() {
 
   return (
     <ContentProvider>
+      <FaviconUpdater />
       <SkeletonTheme baseColor="#202020" highlightColor="#444">
         <div className="bg-background h-screen w-full flex flex-col text-white selection:bg-accent selection:text-black">
           {/* Inject styling for the modal's native scrollbar to keep it subtle/hidden until needed */}

@@ -23,7 +23,7 @@ export const fetchContent = async (): Promise<SiteContent> => {
     // Start with default content
     const newContent: SiteContent = JSON.parse(JSON.stringify(defaultContent));
 
-    // 1. Map Links (Booking, About Image, Socials)
+    // 1. Map Links (Booking, About Image, Socials, Favicon)
     if (linksRes.data) {
       linksRes.data.forEach((item: any) => {
         if (item.key === 'booking') {
@@ -31,6 +31,8 @@ export const fetchContent = async (): Promise<SiteContent> => {
           newContent.about.ctaLink = item.url;
         } else if (item.key === 'about_image') {
           newContent.about.image = item.url;
+        } else if (item.key === 'favicon') {
+          newContent.favicon = item.url;
         } else if (item.key in newContent.socials) {
           newContent.socials[item.key as keyof typeof newContent.socials] = item.url;
         }

@@ -1,6 +1,7 @@
 import { SiteContent } from '../types';
 
 export const defaultContent: SiteContent = {
+  favicon: "/vite.svg", // Default fallback
   hero: {
     subtitle: "Cinematic Motion & Visuals",
     titleLine1: "TAHAJIB",

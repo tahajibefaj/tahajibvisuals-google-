@@ -28,6 +28,7 @@ export interface NavItem {
 }
 
 export interface SiteContent {
+  favicon: string;
   hero: {
     subtitle: string;
     titleLine1: string;
