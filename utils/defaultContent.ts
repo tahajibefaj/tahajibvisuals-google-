@@ -82,7 +82,7 @@ export const defaultContent: SiteContent = {
     projectsCompleted: 100,
     ctaText: "Ready?",
     ctaLink: "https://cal.com/tahajib-efaj-seugbc/calltoexplore",
-    image: "https://picsum.photos/600/800?random=5"
+    image: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=800&q=80"
   },
   services: [
     {
