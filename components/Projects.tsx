@@ -3,14 +3,14 @@ import { motion, AnimatePresence } from 'framer-motion';
 import Reveal from './Reveal';
 import ProjectModal from './ProjectModal';
 import { Project } from '../types';
-import { ArrowUpRight } from 'lucide-react';
+import { ArrowUpRight, RotateCw } from 'lucide-react';
 import { useContent } from '../context/ContentContext';
 import Skeleton from 'react-loading-skeleton';
 import clsx from 'clsx';
 
 const Projects: React.FC = () => {
   const [selectedProjectIndex, setSelectedProjectIndex] = useState<number | null>(null);
-  const { content, isLoading } = useContent();
+  const { content, isLoading, isError, retry } = useContent();
   const projects = content.projects.items;
 
   const handleNext = () => {
@@ -31,18 +31,29 @@ const Projects: React.FC = () => {
         <div className="flex flex-col md:flex-row justify-between items-end mb-16">
           <Reveal>
             <h2 className="text-4xl md:text-5xl font-display font-bold text-white">
-              {isLoading ? <Skeleton width={300} /> : content.projects.heading}
+              {isLoading ? <Skeleton width={300} /> : isError ? "Selected Works" : content.projects.heading}
             </h2>
           </Reveal>
           <Reveal delay={0.2}>
             <div className="text-neutral-400 mt-4 md:mt-0 max-w-sm text-right">
-              {isLoading ? <Skeleton count={2} /> : content.projects.subheading}
+              {isLoading ? <Skeleton count={2} /> : isError ? "" : content.projects.subheading}
             </div>
           </Reveal>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          {isLoading ? (
+          {isError ? (
+            <div className="col-span-1 md:col-span-2 py-16 flex flex-col items-center justify-center border border-white/5 rounded-xl bg-white/5 text-center">
+              <p className="text-neutral-400 mb-4 text-sm">Unable to load projects at this time.</p>
+              <button 
+                onClick={retry}
+                className="flex items-center gap-2 px-4 py-2 text-xs uppercase tracking-widest text-accent hover:bg-accent/10 rounded-full transition-colors"
+              >
+                <RotateCw size={14} />
+                <span>Retry Connection</span>
+              </button>
+            </div>
+          ) : isLoading ? (
             Array.from({ length: 4 }).map((_, index) => (
               <div key={`skeleton-${index}`} className="w-full">
                 <Skeleton className="aspect-video w-full rounded-lg" height="100%" />

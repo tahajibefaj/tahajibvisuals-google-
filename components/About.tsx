@@ -3,6 +3,7 @@ import Reveal from './Reveal';
 import { useMotionValue, useSpring } from 'framer-motion';
 import { useContent } from '../context/ContentContext';
 import Skeleton from 'react-loading-skeleton';
+import { RotateCw } from 'lucide-react';
 
 const AnimatedCounter = ({ value, suffix = '' }: { value: number; suffix?: string }) => {
   const ref = useRef<HTMLSpanElement>(null);
@@ -29,7 +30,7 @@ const AnimatedCounter = ({ value, suffix = '' }: { value: number; suffix?: strin
 };
 
 const About: React.FC = () => {
-  const { content, isLoading } = useContent();
+  const { content, isLoading, isError, retry } = useContent();
   const { about } = content;
 
   return (
@@ -44,18 +45,23 @@ const About: React.FC = () => {
             </Reveal>
             <Reveal>
               <h3 className="text-3xl md:text-5xl font-display font-bold leading-tight mb-8">
-                {isLoading ? <Skeleton count={2} /> : about.heading}
+                {isLoading ? <Skeleton count={2} /> : isError ? "Visual Storyteller" : about.heading}
               </h3>
             </Reveal>
             
             <Reveal delay={0.2}>
               <div className="space-y-6 text-neutral-400 text-lg font-light leading-relaxed">
-                <p>
-                  {isLoading ? <Skeleton count={3} /> : about.bio1}
-                </p>
-                <p>
-                  {isLoading ? <Skeleton count={3} /> : about.bio2}
-                </p>
+                {isError ? (
+                    <div className="py-4 border-l-2 border-accent/20 pl-4">
+                        <p className="text-neutral-500 mb-2">Could not load bio content.</p>
+                        <button onClick={retry} className="text-xs text-accent uppercase tracking-widest hover:underline">Retry</button>
+                    </div>
+                ) : (
+                    <>
+                        <p>{isLoading ? <Skeleton count={3} /> : about.bio1}</p>
+                        <p>{isLoading ? <Skeleton count={3} /> : about.bio2}</p>
+                    </>
+                )}
               </div>
             </Reveal>
             
@@ -63,13 +69,13 @@ const About: React.FC = () => {
                 <div className="mt-10 grid grid-cols-2 gap-6">
                     <div>
                         <h4 className="text-white text-4xl font-bold mb-2">
-                           {isLoading ? <Skeleton width={50} /> : <AnimatedCounter value={about.satisfiedClients} suffix="+" />}
+                           {isLoading ? <Skeleton width={50} /> : isError ? <span className="text-neutral-600">-</span> : <AnimatedCounter value={about.satisfiedClients} suffix="+" />}
                         </h4>
                         <span className="text-neutral-500 text-sm uppercase tracking-wider">Satisfied Clients</span>
                     </div>
                     <div>
                         <h4 className="text-white text-4xl font-bold mb-2">
-                           {isLoading ? <Skeleton width={50} /> : <AnimatedCounter value={about.projectsCompleted} suffix="+" />}
+                           {isLoading ? <Skeleton width={50} /> : isError ? <span className="text-neutral-600">-</span> : <AnimatedCounter value={about.projectsCompleted} suffix="+" />}
                         </h4>
                         <span className="text-neutral-500 text-sm uppercase tracking-wider">Projects Completed</span>
                     </div>
@@ -89,7 +95,14 @@ const About: React.FC = () => {
           {/* Image/Visual */}
           <div className="w-full lg:w-1/2 relative">
              <Reveal width="100%" delay={0.3}>
-                {isLoading ? (
+                {isError ? (
+                  <div className="relative aspect-[3/4] w-full max-w-md mx-auto rounded-lg bg-surface border border-white/5 flex flex-col items-center justify-center text-center p-8">
+                     <p className="text-neutral-500 text-sm mb-4">Image Unavailable</p>
+                     <button onClick={retry} className="p-2 rounded-full bg-white/5 hover:bg-white/10 text-white transition-colors">
+                        <RotateCw size={16} />
+                     </button>
+                  </div>
+                ) : isLoading ? (
                   <div className="w-full max-w-md mx-auto">
                     <Skeleton className="aspect-[3/4] rounded-lg" height="100%" />
                   </div>

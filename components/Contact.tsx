@@ -1,13 +1,13 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import Reveal from './Reveal';
-import { Send, Mail, CheckCircle, Instagram, Facebook, Twitter, Linkedin } from 'lucide-react';
+import { Send, Mail, CheckCircle, Instagram, Facebook, Twitter, Linkedin, RotateCw } from 'lucide-react';
 import { useContent } from '../context/ContentContext';
 import clsx from 'clsx';
 import Skeleton from 'react-loading-skeleton';
 
 const Contact: React.FC = () => {
-  const { content, isLoading } = useContent();
+  const { content, isLoading, isError, retry } = useContent();
   const { contact, socials } = content;
   
   const [formState, setFormState] = useState({
@@ -89,26 +89,35 @@ const Contact: React.FC = () => {
             <Reveal>
               <h2 className="text-sm text-accent uppercase tracking-[0.2em] mb-4">Get In Touch</h2>
               <h3 className="text-4xl md:text-6xl font-display font-bold text-white mb-6">
-                 {isLoading ? <Skeleton /> : contact.heading}
+                 {isLoading ? <Skeleton /> : isError ? "Let's Connect" : contact.heading}
               </h3>
             </Reveal>
             <Reveal delay={0.2}>
               <p className="text-neutral-400 text-lg mb-10 max-w-md">
-                {isLoading ? <Skeleton count={2} /> : contact.subheading}
+                {isLoading ? <Skeleton count={2} /> : isError ? "Ready to create? Send me a message below." : contact.subheading}
               </p>
             </Reveal>
             
             <Reveal delay={0.3}>
-              <a 
-                href={isLoading ? '#' : `mailto:${contact.email}`} 
-                className="flex items-center gap-4 text-white hover:text-accent transition-colors mb-4 group w-fit selectable"
-              >
-                <div className="w-12 h-12 rounded-full bg-surface border border-white/10 flex items-center justify-center group-hover:border-accent transition-colors">
-                    <Mail size={20} />
-                </div>
-                {/* 2) Selectable Email */}
-                <span className="text-lg selectable">{isLoading ? <Skeleton width={200} /> : contact.email}</span>
-              </a>
+              {isError ? (
+                 <div className="flex items-center gap-3 text-neutral-500 text-sm">
+                    <span>Unable to load direct email.</span>
+                    <button onClick={retry} className="text-accent hover:underline flex items-center gap-1">
+                        <RotateCw size={12} /> Retry
+                    </button>
+                 </div>
+              ) : (
+                <a 
+                    href={isLoading ? '#' : `mailto:${contact.email}`} 
+                    className="flex items-center gap-4 text-white hover:text-accent transition-colors mb-4 group w-fit selectable"
+                >
+                    <div className="w-12 h-12 rounded-full bg-surface border border-white/10 flex items-center justify-center group-hover:border-accent transition-colors">
+                        <Mail size={20} />
+                    </div>
+                    {/* 2) Selectable Email */}
+                    <span className="text-lg selectable">{isLoading ? <Skeleton width={200} /> : contact.email}</span>
+                </a>
+              )}
             </Reveal>
           </div>
 

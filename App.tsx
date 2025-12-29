@@ -74,7 +74,8 @@ function App() {
   return (
     <ContentProvider>
       <FaviconUpdater />
-      <SkeletonTheme baseColor="#202020" highlightColor="#444">
+      {/* Skeleton Theme: Solid blocks, no shimmer (enableAnimation={false}) */}
+      <SkeletonTheme baseColor="#202020" highlightColor="#202020" enableAnimation={false}>
         <div className="bg-background h-screen w-full flex flex-col text-white selection:bg-accent selection:text-black">
           {/* Inject styling for the modal's native scrollbar to keep it subtle/hidden until needed */}
           <style>{`
