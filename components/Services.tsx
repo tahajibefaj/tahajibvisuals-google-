@@ -40,7 +40,8 @@ const Services: React.FC = () => {
               <Reveal key={service.id} delay={index * 0.1} width="100%">
                 <div className={clsx(
                   "group p-8 min-h-[320px] bg-surface border border-white/5 rounded-xl",
-                  "hover:border-accent/50 transition-colors duration-300 relative overflow-hidden",
+                  "hover:border-accent/50 transition-all duration-300 relative overflow-hidden",
+                  "hover:-translate-y-2 hover:shadow-[0_10px_30px_-10px_rgba(124,58,237,0.15)]",
                   "cursor-hover-trigger flex flex-col"
                 )}>
                   {/* Hover Gradient */}

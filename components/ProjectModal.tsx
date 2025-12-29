@@ -265,8 +265,12 @@ const ProjectModal: React.FC<ProjectModalProps> = ({ project, isOpen, onClose, o
                 </button>
 
                 {/* LEFT COLUMN: Video Area */}
-                <div className="w-full h-[40vh] lg:h-full bg-black relative flex items-center justify-center overflow-hidden order-1 lg:order-none">
-                    <div className="relative w-full aspect-video bg-black shadow-2xl flex items-center justify-center">
+                {/* 
+                    Mobile: width full, shrink-0, height auto (based on aspect ratio).
+                    Desktop: full height, auto width relative to grid column.
+                */}
+                <div className="w-full shrink-0 lg:h-full bg-black relative flex items-center justify-center overflow-hidden order-1 lg:order-none aspect-video lg:aspect-auto">
+                    <div className="relative w-full h-full bg-black shadow-2xl flex items-center justify-center">
                     {!isPlaying ? (
                         <>
                         <img 
@@ -296,8 +300,12 @@ const ProjectModal: React.FC<ProjectModalProps> = ({ project, isOpen, onClose, o
                 </div>
 
                 {/* RIGHT COLUMN: Text Content */}
-                <div className="w-full h-full bg-surface flex flex-col overflow-y-auto overflow-x-hidden custom-scrollbar border-t lg:border-t-0 lg:border-l lg:border-white/5 relative z-10 order-2 lg:order-none">
-                    <div className="p-8 lg:p-10 lg:pt-16">
+                {/* 
+                    Mobile: flex-1 to fill remaining space, min-h-0 to allow internal scrolling.
+                    Desktop: full height.
+                */}
+                <div className="w-full flex-1 lg:h-full bg-surface flex flex-col overflow-y-auto overflow-x-hidden custom-scrollbar border-t lg:border-t-0 lg:border-l lg:border-white/5 relative z-10 order-2 lg:order-none min-h-0">
+                    <div className="p-6 md:p-8 lg:p-10 lg:pt-16">
                         <span className="text-accent text-sm tracking-widest uppercase mb-2 block">{project.category}</span>
                         <h3 className="text-3xl font-display font-bold text-white mb-6 leading-tight">{project.title}</h3>
                         
