@@ -42,8 +42,8 @@ export const fetchContent = async (): Promise<SiteContent> => {
     // 2. Map Stats
     if (statsRes.data) {
       statsRes.data.forEach((item: any) => {
-        if (item.key === 'years_experience') {
-          newContent.about.yearsExp = item.value;
+        if (item.key === 'satisfied_clients') {
+          newContent.about.satisfiedClients = item.value;
         } else if (item.key === 'projects_completed') {
           newContent.about.projectsCompleted = item.value;
         }

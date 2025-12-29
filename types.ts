@@ -49,7 +49,7 @@ export interface SiteContent {
     heading: string;
     bio1: string;
     bio2: string;
-    yearsExp: number;
+    satisfiedClients: number;
     projectsCompleted: number;
     ctaText: string;
     ctaLink: string;

@@ -63,9 +63,9 @@ const About: React.FC = () => {
                 <div className="mt-10 grid grid-cols-2 gap-6">
                     <div>
                         <h4 className="text-white text-4xl font-bold mb-2">
-                           {isLoading ? <Skeleton width={50} /> : <AnimatedCounter value={about.yearsExp} suffix="+" />}
+                           {isLoading ? <Skeleton width={50} /> : <AnimatedCounter value={about.satisfiedClients} suffix="+" />}
                         </h4>
-                        <span className="text-neutral-500 text-sm uppercase tracking-wider">Years Experience</span>
+                        <span className="text-neutral-500 text-sm uppercase tracking-wider">Satisfied Clients</span>
                     </div>
                     <div>
                         <h4 className="text-white text-4xl font-bold mb-2">

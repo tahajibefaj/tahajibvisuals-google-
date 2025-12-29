@@ -79,7 +79,7 @@ export const defaultContent: SiteContent = {
     heading: "I tell stories through motion and rhythm.",
     bio1: "I'm Tahajib Efaj, a dedicated video editor and motion graphics designer obsessed with the details. My philosophy is simple: visuals should not just look good—they should feel right.",
     bio2: "Specializing in Premiere Pro and After Effects, I create clean, high-retention content that cuts through the noise. Whether it's a fast-paced social ad or a cinematic brand documentary, I focus on pacing, sound design, and visual hierarchy to ensure your message lands.",
-    yearsExp: 4,
+    satisfiedClients: 15,
     projectsCompleted: 100,
     ctaText: "Ready?",
     ctaLink: "https://cal.com/tahajib-efaj-seugbc/calltoexplore",
