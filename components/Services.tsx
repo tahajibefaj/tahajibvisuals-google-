@@ -19,7 +19,7 @@ const Services: React.FC = () => {
     <section id="services" className="py-24 bg-surfaceHighlight/30">
       <div className="container mx-auto px-6">
         <Reveal>
-          <div className="text-center mb-16">
+          <div className="mb-16">
             <h2 className="text-sm text-accent uppercase tracking-[0.2em] mb-4">What I Do</h2>
             <h3 className="text-3xl md:text-5xl font-display font-bold text-white">Creative Services</h3>
           </div>
