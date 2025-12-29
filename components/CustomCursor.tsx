@@ -3,13 +3,29 @@ import { motion, useMotionValue, useSpring, useReducedMotion } from 'framer-moti
 
 const CustomCursor: React.FC = () => {
   const shouldReduceMotion = useReducedMotion();
+  const [isTouchDevice, setIsTouchDevice] = useState(false);
+
+  // Detect touch/mobile devices based on pointer accuracy
+  useEffect(() => {
+    // 'pointer: coarse' matches devices where the primary input is touch (phones, tablets)
+    // 'pointer: fine' matches devices with a mouse/trackpad (desktop, laptops with touchscreens)
+    const mediaQuery = window.matchMedia('(pointer: coarse)');
+    
+    const handleDeviceChange = (e: MediaQueryListEvent) => {
+      setIsTouchDevice(e.matches);
+    };
+
+    setIsTouchDevice(mediaQuery.matches);
+    
+    mediaQuery.addEventListener('change', handleDeviceChange);
+    return () => mediaQuery.removeEventListener('change', handleDeviceChange);
+  }, []);
 
   // Use MotionValues for high-performance updates
   const cursorX = useMotionValue(-100);
   const cursorY = useMotionValue(-100);
   
   // Smooth spring physics configuration
-  // If reduced motion is on, we make it snappy to avoid motion sickness
   const springConfig = shouldReduceMotion 
     ? { damping: 50, stiffness: 1000, mass: 0.1 } 
     : { damping: 25, stiffness: 400, mass: 0.4 };
@@ -21,9 +37,8 @@ const CustomCursor: React.FC = () => {
   const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
-    // If reduced motion, we can arguably disable the custom cursor entirey 
-    // but the requirement says "Disable or soften". 
-    // We will keep it but make it very rigid (softened animation).
+    // Completely disable listeners on touch devices to save performance and prevent conflicts
+    if (isTouchDevice) return;
 
     // Unified handler for Mouse and Touch events
     const moveCursor = (e: MouseEvent | TouchEvent) => {
@@ -63,6 +78,7 @@ const CustomCursor: React.FC = () => {
 
     // Use passive listeners for better scroll performance
     window.addEventListener('mousemove', moveCursor, { passive: true });
+    // We keep touch listeners here for Laptops that might have touchscreens but are not "coarse" primary
     window.addEventListener('touchmove', moveCursor, { passive: true });
     window.addEventListener('touchstart', moveCursor, { passive: true });
     window.addEventListener('mouseover', handleMouseOver);
@@ -73,14 +89,27 @@ const CustomCursor: React.FC = () => {
       window.removeEventListener('touchstart', moveCursor);
       window.removeEventListener('mouseover', handleMouseOver);
     };
-  }, [cursorX, cursorY, isVisible]);
+  }, [cursorX, cursorY, isVisible, isTouchDevice]);
+
+  // If it's a touch device (Mobile/Tablet), do not render the custom cursor.
+  // Instead, inject styles to force the default system cursor to be visible,
+  // overriding the global CSS in index.html.
+  if (isTouchDevice) {
+    return (
+      <style>{`
+        html body, html a, html button, html input, html select, html textarea, html [role="button"] { 
+            cursor: auto !important; 
+        }
+      `}</style>
+    );
+  }
 
   // If user hasn't interacted, don't render to avoid (0,0) position artifact
   if (!isVisible) return null;
 
   return (
     <>
-      {/* Global CSS to hide default cursor where appropriate */}
+      {/* Global CSS to hide default cursor where appropriate (Desktop Only) */}
       <style>{`
         body, a, button, input, select, textarea { 
             cursor: none !important; 
