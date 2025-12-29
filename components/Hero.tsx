@@ -46,10 +46,10 @@ const Hero: React.FC = () => {
     >
       {/* Background Ambience */}
       <div className="absolute top-0 left-0 w-full h-full z-0 pointer-events-none">
-        {/* Dynamic Mouse Follower Glow */}
+        {/* Dynamic Mouse Follower Glow - Increased Opacity and Blur for prominence */}
         <motion.div 
             style={{ x, y }}
-            className="absolute top-0 left-0 w-[800px] h-[800px] bg-accent/25 rounded-full blur-[120px] animate-pulse will-change-transform"
+            className="absolute top-0 left-0 w-[800px] h-[800px] bg-accent/40 rounded-full blur-[180px] animate-pulse will-change-transform"
         />
 
         {/* Static Anchor Glow */}
