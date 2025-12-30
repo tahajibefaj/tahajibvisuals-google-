@@ -75,9 +75,9 @@ const ProjectCard: React.FC<{
         />
       )}
       
-      {/* Clean Flat Overlay - No heavy gradients */}
-      <div className="absolute inset-0 bg-black/40 opacity-0 md:opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-6 select-none">
-        <div className="transform translate-y-4 group-hover:translate-y-0 transition-transform duration-300">
+      {/* Clean Flat Overlay - Mobile: Always Visible | Desktop: Hover Only */}
+      <div className="absolute inset-0 bg-black/40 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-6 select-none">
+        <div className="transform translate-y-0 md:translate-y-4 md:group-hover:translate-y-0 transition-transform duration-300">
           <span className="text-accent text-[10px] md:text-xs font-bold tracking-widest uppercase mb-2 block">
             {LABEL_MAP[project.category] || project.category || "Project"}
           </span>
@@ -199,8 +199,8 @@ const ProjectCarousel: React.FC<{
         ref={containerRef}
         className="relative group/carousel w-full overflow-hidden"
     >
-        {/* Navigation Arrows - Always Visible, No Hover Hiding */}
-        <div className="absolute inset-y-0 left-0 z-30 flex items-center justify-center w-[10%] bg-gradient-to-r from-background to-transparent pointer-events-none">
+        {/* Navigation Arrows - Fixed Edge Fade (From Surface instead of Background) */}
+        <div className="absolute inset-y-0 left-0 z-30 flex items-center justify-center w-[10%] bg-gradient-to-r from-surface to-transparent pointer-events-none">
             <button 
                 onClick={() => move(-1)}
                 className="pointer-events-auto p-3 rounded-full bg-surface border border-white/10 text-white shadow-xl hover:bg-accent hover:border-accent transition-all active:scale-95"
@@ -210,7 +210,7 @@ const ProjectCarousel: React.FC<{
             </button>
         </div>
 
-        <div className="absolute inset-y-0 right-0 z-30 flex items-center justify-center w-[10%] bg-gradient-to-l from-background to-transparent pointer-events-none">
+        <div className="absolute inset-y-0 right-0 z-30 flex items-center justify-center w-[10%] bg-gradient-to-l from-surface to-transparent pointer-events-none">
              <button 
                 onClick={() => move(1)}
                 className="pointer-events-auto p-3 rounded-full bg-surface border border-white/10 text-white shadow-xl hover:bg-accent hover:border-accent transition-all active:scale-95"
