@@ -1,11 +1,41 @@
 import React, { useEffect } from 'react';
-import { motion, useMotionValue, useSpring } from 'framer-motion';
+import { motion, useMotionValue, useSpring, useTransform } from 'framer-motion';
 import Reveal from './Reveal';
 import { useContent } from '../context/ContentContext';
 
 const Hero: React.FC = () => {
   const { content } = useContent();
   const { hero } = content;
+
+  // Parallax Logic
+  const scrollY = useMotionValue(0);
+  // Map scroll distance (0 to 1000px) to background movement (0 to 300px)
+  // Moving the background 'down' (positive y) while the container scrolls 'up' creates depth.
+  const backgroundY = useTransform(scrollY, [0, 1000], [0, 300]);
+
+  useEffect(() => {
+    const handleScroll = ({ offset }: { offset: { y: number } }) => {
+      scrollY.set(offset.y);
+    };
+
+    const sb = (window as any).scrollbar;
+    
+    // Attach listener to smooth-scrollbar if available
+    if (sb) {
+      sb.addListener(handleScroll);
+      // Set initial value
+      scrollY.set(sb.offset.y);
+    } else {
+      // Fallback for native scroll
+      const handleNativeScroll = () => scrollY.set(window.scrollY);
+      window.addEventListener('scroll', handleNativeScroll);
+      return () => window.removeEventListener('scroll', handleNativeScroll);
+    }
+
+    return () => {
+      if (sb) sb.removeListener(handleScroll);
+    };
+  }, [scrollY]);
 
   // Mouse Follower Logic for Hero Background
   // Initialize to center screen
@@ -44,8 +74,11 @@ const Hero: React.FC = () => {
       className="relative min-h-screen flex items-center justify-center overflow-hidden pt-20"
       data-context="hero"
     >
-      {/* Background Ambience */}
-      <div className="absolute top-0 left-0 w-full h-full z-0 pointer-events-none">
+      {/* Background Ambience with Parallax */}
+      <motion.div 
+        style={{ y: backgroundY }}
+        className="absolute top-0 left-0 w-full h-full z-0 pointer-events-none"
+      >
         {/* Dynamic Mouse Follower Glow - Increased Opacity and Blur for prominence */}
         <motion.div 
             style={{ x, y }}
@@ -57,7 +90,7 @@ const Hero: React.FC = () => {
         
         {/* Noise overlay */}
         <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 mix-blend-overlay"></div>
-      </div>
+      </motion.div>
 
       <div className="container mx-auto px-6 relative z-10 text-center flex flex-col items-center">
         {/* Availability Indicator */}
@@ -83,6 +116,7 @@ const Hero: React.FC = () => {
         </Reveal>
 
         <div className="mb-8 relative w-full">
+            {/* Localized Glow behind text */}
             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-2/3 h-2/3 bg-accent/10 blur-[80px] -z-10 rounded-full"></div>
             
             <Reveal width="100%">

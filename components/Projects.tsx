@@ -98,8 +98,6 @@ const ProjectCarousel: React.FC<{
   
   // Responsive Columns State
   const [cols, setCols] = useState(3);
-  // Touch Detection State
-  const [isTouch, setIsTouch] = useState(false);
 
   useEffect(() => {
     const handleResize = () => {
@@ -107,9 +105,6 @@ const ProjectCarousel: React.FC<{
       if (w < 768) setCols(1);
       else if (w < 1024) setCols(2);
       else setCols(3);
-
-      // Check for touch capability strictly
-      setIsTouch(window.matchMedia("(pointer: coarse)").matches);
     };
     handleResize(); // Initial
     window.addEventListener('resize', handleResize);
@@ -133,7 +128,6 @@ const ProjectCarousel: React.FC<{
   // Start at the middle set
   const [index, setIndex] = useState(originalLength);
   const [isHovering, setIsHovering] = useState(false);
-  const [isDragging, setIsDragging] = useState(false);
   
   // Motion Value for sliding
   const x = useMotionValue(0);
@@ -142,7 +136,7 @@ const ProjectCarousel: React.FC<{
   useEffect(() => {
     if (originalLength === 0) return;
     
-    // Calculate percentage shift based on columns
+    // Calculate percentage shift based on columns to move exactly ONE card
     // 1 col = 100% shift per item, 3 cols = 33.333% shift per item
     const percentPerItem = 100 / cols;
     const targetX = -index * percentPerItem;
@@ -172,19 +166,6 @@ const ProjectCarousel: React.FC<{
     return controls.stop;
   }, [index, cols, originalLength, x]);
 
-  const handleDragEnd = (e: MouseEvent | TouchEvent | PointerEvent, info: PanInfo) => {
-    setIsDragging(false);
-    const threshold = 50; // px to trigger swipe
-    if (info.offset.x < -threshold) {
-      setIndex(i => i + 1);
-    } else if (info.offset.x > threshold) {
-      setIndex(i => i - 1);
-    } else {
-      // Snap back if drag wasn't enough (index stays same, effect re-runs to snap x)
-      setIndex(i => i); 
-    }
-  };
-
   if (isLoading) {
     return (
         <div className="flex gap-6 overflow-hidden">
@@ -210,11 +191,14 @@ const ProjectCarousel: React.FC<{
         onMouseEnter={() => setIsHovering(true)}
         onMouseLeave={() => setIsHovering(false)}
     >
-        {/* Navigation Arrows (Desktop Only) */}
-        {/* Removed gradient backgrounds for a cleaner, modern look */}
+        {/* Navigation Arrows (Visible on all devices) */}
+        {/* 
+            Mobile/Tablet: Always visible (opacity-100) because there is no hover state.
+            Desktop: Visible on hover (md:opacity-0 md:group-hover:opacity-100).
+        */}
         <div className={clsx(
-            "hidden md:flex absolute top-0 bottom-8 left-0 items-center justify-start z-20 transition-opacity duration-300 pointer-events-none pl-2",
-            isHovering ? "opacity-100" : "opacity-0"
+            "flex absolute top-0 bottom-8 left-0 items-center justify-start z-20 pl-2 pointer-events-none transition-opacity duration-300",
+            "opacity-100 md:opacity-0 md:group-hover:opacity-100"
         )}>
             <button 
                 onClick={() => setIndex(i => i - 1)}
@@ -226,8 +210,8 @@ const ProjectCarousel: React.FC<{
         </div>
 
         <div className={clsx(
-            "hidden md:flex absolute top-0 bottom-8 right-0 items-center justify-end z-20 transition-opacity duration-300 pointer-events-none pr-2",
-            isHovering ? "opacity-100" : "opacity-0"
+            "flex absolute top-0 bottom-8 right-0 items-center justify-end z-20 pr-2 pointer-events-none transition-opacity duration-300",
+             "opacity-100 md:opacity-0 md:group-hover:opacity-100"
         )}>
              <button 
                 onClick={() => setIndex(i => i + 1)}
@@ -240,15 +224,9 @@ const ProjectCarousel: React.FC<{
 
         {/* Track */}
         <motion.div 
-            className={clsx(
-              "flex w-full pb-8 pt-4",
-              isTouch ? "cursor-grab active:cursor-grabbing" : ""
-            )}
+            className="flex w-full pb-8 pt-4"
             style={{ x }} // Bind motion value
-            drag={isTouch ? "x" : false} // Strict: Drag enabled ONLY on touch devices
-            dragElastic={0.05} // Minimal elasticity
-            onDragStart={() => setIsDragging(true)}
-            onDragEnd={handleDragEnd}
+            drag={false} // Disable drag for everyone
         >
             {displayItems.map((project, i) => (
                 <div 
@@ -261,7 +239,7 @@ const ProjectCarousel: React.FC<{
                     style={{ boxSizing: 'border-box' }}
                 >
                     <div className="pointer-events-auto" onClick={() => {
-                      if (!isDragging) onItemClick(project.id);
+                       onItemClick(project.id);
                     }}>
                        <ProjectCard project={project} onClick={() => {}} />
                     </div>
@@ -286,7 +264,6 @@ const Projects: React.FC = () => {
     if (!currentProject) return;
 
     // 2. Determine Context (Category)
-    // We normalize to ensure we match strictly within the active section
     const currentCategory = currentProject.category.trim().toLowerCase();
     
     // 3. Filter Projects to ONLY this category
@@ -371,7 +348,7 @@ const Projects: React.FC = () => {
                     <h3 className="text-xl md:text-2xl font-bold text-white tracking-tight">{section.title}</h3>
                     <div className="h-[1px] flex-1 bg-white/5"></div>
                     <div className="hidden md:flex items-center gap-1 text-xs font-medium text-neutral-500 uppercase tracking-widest">
-                       {sectionProjects.length > 0 ? `${sectionProjects.length} Projects` : 'Loading...'}
+                       Featured Selection
                     </div>
                   </div>
                 </Reveal>
