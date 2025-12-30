@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
-import { motion, AnimatePresence, useMotionValue, animate, PanInfo } from 'framer-motion';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
+import { motion, AnimatePresence, useAnimation } from 'framer-motion';
 import Reveal from './Reveal';
 import ProjectModal from './ProjectModal';
 import { Project } from '../types';
@@ -33,6 +33,12 @@ const LABEL_MAP: Record<string, string> = {
   'short_form': 'Short Form',
 };
 
+// Helper to normalize category strings for comparison
+const normalizeCategory = (cat?: string) => {
+    if (!cat) return '';
+    return cat.trim().toLowerCase().replace(/[^a-z0-9]/g, '');
+};
+
 // --- Reusable Card Component ---
 const ProjectCard: React.FC<{ 
   project: Project; 
@@ -44,10 +50,11 @@ const ProjectCard: React.FC<{
   return (
     <div
       className={clsx(
-        "group relative aspect-video overflow-hidden rounded-lg cursor-pointer cursor-hover-trigger",
-        "border border-white/10 hover:border-accent/50",
-        "hover:shadow-[0_0_30px_rgba(139,92,246,0.15)] transition-all duration-500",
-        "w-full h-full bg-surfaceHighlight"
+        "group relative aspect-video overflow-hidden rounded-lg cursor-pointer",
+        "border border-white/10 transition-colors duration-300",
+        "w-full h-full bg-surfaceHighlight",
+        // Minimal edge treatment on hover instead of heavy shadow
+        "hover:border-accent/50"
       )}
       onClick={onClick}
       data-context="project"
@@ -68,8 +75,8 @@ const ProjectCard: React.FC<{
         />
       )}
       
-      {/* Overlay */}
-      <div className="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-transparent opacity-80 md:opacity-0 md:group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-6 select-none">
+      {/* Clean Flat Overlay - No heavy gradients */}
+      <div className="absolute inset-0 bg-black/40 opacity-0 md:opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-6 select-none">
         <div className="transform translate-y-4 group-hover:translate-y-0 transition-transform duration-300">
           <span className="text-accent text-[10px] md:text-xs font-bold tracking-widest uppercase mb-2 block">
             {LABEL_MAP[project.category] || project.category || "Project"}
@@ -78,7 +85,7 @@ const ProjectCard: React.FC<{
             <h3 className="text-lg md:text-xl font-bold text-white leading-tight line-clamp-2">
               {project.title || "Untitled Project"}
             </h3>
-            <div className="p-2 bg-white text-black rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300 delay-100 scale-75 md:scale-100 shrink-0 ml-3">
+            <div className="p-2 bg-white text-black rounded-full scale-90 md:scale-100 shrink-0 ml-3">
                <ArrowUpRight size={18} />
             </div>
           </div>
@@ -88,7 +95,7 @@ const ProjectCard: React.FC<{
   );
 };
 
-// --- Transform-Based Infinite Carousel ---
+// --- Controlled Infinite Carousel ---
 const ProjectCarousel: React.FC<{
   items: Project[];
   onItemClick: (originalId: number) => void;
@@ -96,151 +103,139 @@ const ProjectCarousel: React.FC<{
 }> = ({ items, onItemClick, isLoading }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   
-  // Responsive Columns State
-  const [cols, setCols] = useState(3);
+  // Layout Logic
+  // Desktop: 40% width cards (2 visible = 80%, 10% margins)
+  // Mobile: 80% width cards (1 visible = 80%, 10% margins)
+  const [layout, setLayout] = useState({ cardWidth: 40, offset: 10 });
 
   useEffect(() => {
     const handleResize = () => {
-      const w = window.innerWidth;
-      if (w < 768) setCols(1);
-      else if (w < 1024) setCols(2);
-      else setCols(3);
+      if (window.innerWidth < 768) {
+        setLayout({ cardWidth: 80, offset: 10 }); // 1 card focus
+      } else {
+        setLayout({ cardWidth: 40, offset: 10 }); // 2 cards focus
+      }
     };
-    handleResize(); // Initial
+    handleResize();
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  // Triple Buffer Data for Infinite Loop
+  // Triple Buffer for Infinite Loop
   const displayItems = useMemo(() => {
     if (!items.length) return [];
-    let padded = [...items];
-    // Ensure we have enough items to fill the view comfortably before tripling
-    while (padded.length < 6) {
-      padded = [...padded, ...items];
-    }
-    // Create triple buffer: [Buffer_Pre] [Main] [Buffer_Post]
-    return [...padded, ...padded, ...padded];
+    // Ensure minimum items to fill buffer correctly
+    let source = [...items];
+    if (source.length < 4) source = [...source, ...source]; // Duplicate if too few
+    return [...source, ...source, ...source];
   }, [items]);
 
-  const originalLength = displayItems.length / 3;
+  const originalLength = items.length < 4 && items.length > 0 ? items.length * 2 : items.length;
   
-  // Start at the middle set
+  // Start in the middle set
   const [index, setIndex] = useState(originalLength);
-  const [isHovering, setIsHovering] = useState(false);
-  
-  // Motion Value for sliding
-  const x = useMotionValue(0);
+  const [isAnimating, setIsAnimating] = useState(false);
+  const controls = useAnimation();
 
-  // Sync x with index using spring physics for snappy, premium feel
+  // Handle Movement
+  const move = (dir: 1 | -1) => {
+    if (isAnimating || !items.length) return;
+    setIsAnimating(true);
+    setIndex(prev => prev + dir);
+  };
+
+  // Animation Effect
   useEffect(() => {
-    if (originalLength === 0) return;
-    
-    // Calculate percentage shift based on columns to move exactly ONE card
-    // 1 col = 100% shift per item, 3 cols = 33.333% shift per item
-    const percentPerItem = 100 / cols;
-    const targetX = -index * percentPerItem;
+    if (items.length === 0) return;
 
-    const controls = animate(x, targetX, {
-      type: "spring",
-      stiffness: 300,
-      damping: 30, // Minimal bounce, quick settle
-      mass: 1,
-      onComplete: () => {
+    // The target position is negative (moving left) plus the positive offset (centering)
+    // Formula: - (index * width) + offset
+    const targetX = -index * layout.cardWidth + layout.offset;
+
+    controls.start({
+        x: `${targetX}%`,
+        transition: { duration: 0.4, ease: "easeInOut" }
+    }).then(() => {
+        setIsAnimating(false);
         // Silent Loop Reset
-        // If we are in the last buffer set, jump back to middle
         if (index >= originalLength * 2) {
-          const resetIndex = index - originalLength;
-          setIndex(resetIndex);
-          x.set(-resetIndex * percentPerItem);
-        } 
-        // If we are in the first buffer set, jump forward to middle
-        else if (index < originalLength) {
-          const resetIndex = index + originalLength;
-          setIndex(resetIndex);
-          x.set(-resetIndex * percentPerItem);
+            const resetIndex = index - originalLength;
+            setIndex(resetIndex);
+            controls.set({ x: `${-resetIndex * layout.cardWidth + layout.offset}%` });
+        } else if (index < originalLength) {
+            const resetIndex = index + originalLength;
+            setIndex(resetIndex);
+            controls.set({ x: `${-resetIndex * layout.cardWidth + layout.offset}%` });
         }
-      }
     });
-
-    return controls.stop;
-  }, [index, cols, originalLength, x]);
+  }, [index, layout, controls, originalLength, items.length]);
 
   if (isLoading) {
     return (
-        <div className="flex gap-6 overflow-hidden">
-            {Array.from({ length: 3 }).map((_, i) => (
-                <div key={i} className="min-w-full md:min-w-[50%] lg:min-w-[33.333%] pr-6">
-                    <Skeleton className="aspect-video w-full rounded-lg" height="100%" />
-                    <div className="mt-4">
-                        <Skeleton width="40%" height={16} />
-                        <Skeleton width="80%" height={24} className="mt-2" />
-                    </div>
-                </div>
-            ))}
+        <div className="flex gap-4 overflow-hidden px-[10%]">
+            <div className="min-w-[80%] md:min-w-[40%] pr-4">
+                <Skeleton className="aspect-video w-full rounded-lg" height="100%" />
+            </div>
+            <div className="min-w-[80%] md:min-w-[40%] pr-4">
+                <Skeleton className="aspect-video w-full rounded-lg" height="100%" />
+            </div>
+             <div className="min-w-[80%] md:min-w-[40%] pr-4">
+                <Skeleton className="aspect-video w-full rounded-lg" height="100%" />
+            </div>
         </div>
     );
   }
 
-  if (items.length === 0) return null;
+  if (items.length === 0) {
+      return (
+          <div className="w-full flex items-center justify-center py-12 border border-white/5 bg-white/5 rounded-lg">
+              <span className="text-neutral-500 text-sm uppercase tracking-widest">No Projects Found</span>
+          </div>
+      );
+  }
 
   return (
     <div 
         ref={containerRef}
         className="relative group/carousel w-full overflow-hidden"
-        onMouseEnter={() => setIsHovering(true)}
-        onMouseLeave={() => setIsHovering(false)}
     >
-        {/* Navigation Arrows (Visible on all devices) */}
-        {/* 
-            Mobile/Tablet: Always visible (opacity-100) because there is no hover state.
-            Desktop: Visible on hover (md:opacity-0 md:group-hover:opacity-100).
-        */}
-        <div className={clsx(
-            "flex absolute top-0 bottom-8 left-0 items-center justify-start z-20 pl-2 pointer-events-none transition-opacity duration-300",
-            "opacity-100 md:opacity-0 md:group-hover:opacity-100"
-        )}>
+        {/* Navigation Arrows - Always Visible, No Hover Hiding */}
+        <div className="absolute inset-y-0 left-0 z-30 flex items-center justify-center w-[10%] bg-gradient-to-r from-background to-transparent pointer-events-none">
             <button 
-                onClick={() => setIndex(i => i - 1)}
-                className="pointer-events-auto p-3 rounded-full bg-white/10 backdrop-blur-md border border-white/10 hover:bg-accent hover:border-accent hover:text-white transition-all shadow-xl group/btn"
+                onClick={() => move(-1)}
+                className="pointer-events-auto p-3 rounded-full bg-surface border border-white/10 text-white shadow-xl hover:bg-accent hover:border-accent transition-all active:scale-95"
                 aria-label="Previous Project"
             >
-                <ChevronLeft size={24} className="group-active/btn:scale-90 transition-transform" />
+                <ChevronLeft size={24} />
             </button>
         </div>
 
-        <div className={clsx(
-            "flex absolute top-0 bottom-8 right-0 items-center justify-end z-20 pr-2 pointer-events-none transition-opacity duration-300",
-             "opacity-100 md:opacity-0 md:group-hover:opacity-100"
-        )}>
+        <div className="absolute inset-y-0 right-0 z-30 flex items-center justify-center w-[10%] bg-gradient-to-l from-background to-transparent pointer-events-none">
              <button 
-                onClick={() => setIndex(i => i + 1)}
-                className="pointer-events-auto p-3 rounded-full bg-white/10 backdrop-blur-md border border-white/10 hover:bg-accent hover:border-accent hover:text-white transition-all shadow-xl group/btn"
+                onClick={() => move(1)}
+                className="pointer-events-auto p-3 rounded-full bg-surface border border-white/10 text-white shadow-xl hover:bg-accent hover:border-accent transition-all active:scale-95"
                 aria-label="Next Project"
             >
-                <ChevronRight size={24} className="group-active/btn:scale-90 transition-transform" />
+                <ChevronRight size={24} />
             </button>
         </div>
 
         {/* Track */}
         <motion.div 
-            className="flex w-full pb-8 pt-4"
-            style={{ x }} // Bind motion value
-            drag={false} // Disable drag for everyone
+            className="flex w-full py-4"
+            animate={controls}
+            initial={{ x: `${-index * layout.cardWidth + layout.offset}%` }}
         >
             {displayItems.map((project, i) => (
                 <div 
                     key={`${project.id}-${i}`}
-                    // Width Logic:
-                    // Mobile: 100%
-                    // Tablet: 50%
-                    // Desktop: 33.333%
-                    className="w-full md:w-1/2 lg:w-1/3 flex-shrink-0 pr-6 select-none"
-                    style={{ boxSizing: 'border-box' }}
+                    className="flex-shrink-0 px-3 md:px-4"
+                    style={{ 
+                        width: `${layout.cardWidth}%`,
+                        boxSizing: 'border-box'
+                    }}
                 >
-                    <div className="pointer-events-auto" onClick={() => {
-                       onItemClick(project.id);
-                    }}>
+                    <div onClick={() => !isAnimating && onItemClick(project.id)}>
                        <ProjectCard project={project} onClick={() => {}} />
                     </div>
                 </div>
@@ -259,25 +254,21 @@ const Projects: React.FC = () => {
   const handleNav = (direction: 'next' | 'prev') => {
     if (!selectedProjectId) return;
 
-    // 1. Find Current Project
     const currentProject = projects.find(p => p.id === selectedProjectId);
     if (!currentProject) return;
 
-    // 2. Determine Context (Category)
-    const currentCategory = currentProject.category.trim().toLowerCase();
+    // Strict category matching for navigation within modal
+    const currentCatNorm = normalizeCategory(currentProject.category);
     
-    // 3. Filter Projects to ONLY this category
     const contextProjects = projects.filter(p => 
-      p.category.trim().toLowerCase() === currentCategory
+      normalizeCategory(p.category) === currentCatNorm
     );
 
     if (contextProjects.length === 0) return;
 
-    // 4. Find index in filtered list
     const currentIndex = contextProjects.findIndex(p => p.id === selectedProjectId);
     if (currentIndex === -1) return;
 
-    // 5. Calculate New Index (Looping)
     let newIndex;
     if (direction === 'next') {
       newIndex = (currentIndex + 1) % contextProjects.length;
@@ -285,7 +276,6 @@ const Projects: React.FC = () => {
       newIndex = (currentIndex - 1 + contextProjects.length) % contextProjects.length;
     }
 
-    // 6. Set ID
     setSelectedProjectId(contextProjects[newIndex].id);
   };
 
@@ -330,14 +320,20 @@ const Projects: React.FC = () => {
         {/* Project Subsections */}
         <div className="space-y-24">
           {SECTION_CONFIG.map((section) => {
-            // Strict Filtering for Carousel
+            // Robust Filtering: Check both ID (keyword) and Title against Category
             const sectionProjects = isLoading 
                 ? [] 
                 : projects.filter(p => {
-                    if (!p.category) return false;
-                    return p.category.trim().toLowerCase() === section.keyword.toLowerCase();
+                    const pCat = normalizeCategory(p.category);
+                    const sKey = normalizeCategory(section.keyword);
+                    const sTitle = normalizeCategory(section.title);
+                    
+                    // Match against keyword or full title (e.g. "motion" or "motiongraphics")
+                    return pCat.includes(sKey) || pCat === sTitle; 
                 });
 
+            // Even if empty, we might want to show the section if loading, handled above. 
+            // If strictly empty and not loading, we skip.
             if (!isLoading && sectionProjects.length === 0) return null;
 
             return (
