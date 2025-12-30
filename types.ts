@@ -8,6 +8,7 @@ export interface Project {
   videoUrl?: string; // For embed
   description: string;
   tools: string[];
+  display_order?: number;
   breakdown?: {
     goal: string;
     focus: string;

@@ -321,7 +321,7 @@ const Projects: React.FC = () => {
         <div className="space-y-24">
           {SECTION_CONFIG.map((section) => {
             // Robust Filtering: Check both ID (keyword) and Title against Category
-            const sectionProjects = isLoading 
+            let sectionProjects = isLoading 
                 ? [] 
                 : projects.filter(p => {
                     const pCat = normalizeCategory(p.category);
@@ -331,6 +331,11 @@ const Projects: React.FC = () => {
                     // Match against keyword or full title (e.g. "motion" or "motiongraphics")
                     return pCat.includes(sKey) || pCat === sTitle; 
                 });
+
+            // Ensure Motion Graphics are strictly ordered by display_order
+            if (section.id === 'motion' && sectionProjects.length > 0) {
+               sectionProjects.sort((a, b) => (a.display_order ?? 0) - (b.display_order ?? 0));
+            }
 
             // Even if empty, we might want to show the section if loading, handled above. 
             // If strictly empty and not loading, we skip.

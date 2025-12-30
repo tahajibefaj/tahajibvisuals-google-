@@ -60,6 +60,7 @@ export const fetchContent = async (): Promise<SiteContent> => {
       videoUrl: item.video_url, // Maps snake_case SQL to camelCase prop
       description: item.description,
       tools: item.tools,
+      display_order: item.display_order,
     }));
     newContent.projects.items = dbProjects;
   }
