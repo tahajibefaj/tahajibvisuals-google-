@@ -117,7 +117,7 @@ const About: React.FC = () => {
                       
                       {/* Decorative Elements */}
                       <div className="absolute -bottom-6 -right-6 w-24 h-24 bg-accent/20 rounded-full blur-2xl"></div>
-                      <div className="absolute top-10 -left-10 w-32 h-32 border border-white/10 rounded-full opacity-50"></div>
+                      {/* Removed the circular border overlay that was causing visual artifacts on the image */}
                   </div>
                 )}
              </Reveal>
